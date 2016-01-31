@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
   init_histogram(4, &hist);
   fill_histogram(&hist, &cim);
   print_histogram(&hist);
-  print_histogram_libsvm(&hist, 0);
+
   free_histogram(&hist);
   free_cimage(0,&cim);
   exit(0);

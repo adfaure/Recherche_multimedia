@@ -47,8 +47,8 @@ void print_histogram(const HISTOGRAM *hist)
   }
 }
 
-void print_histogram_libsvm(const HISTOGRAM* hist, int concept) {
-  printf("%d ", concept);
+void print_histogram_libsvm(FILE * file, const HISTOGRAM* hist, int concept) {
+  fprintf(file, "%d ", concept);
   for(int b = 0 ; b < hist->k; b++)
   {
     for(int g = 0 ; g < hist->k; g++)
@@ -57,14 +57,30 @@ void print_histogram_libsvm(const HISTOGRAM* hist, int concept) {
       {
         unsigned int indice = r + (hist->k*g) +  (hist->k * hist->k * b);
         if(hist->cube[indice] != 0) {
-          printf("%d:%lf ", indice ,hist->cube[indice]);
+          fprintf(file, "%d:%lf ", indice ,hist->cube[indice]);
         }
       }
     }
   }
+  fprintf(file, "\n");
 }
 
 void free_histogram(HISTOGRAM *hist) {
   hist->k = 0;
   free(hist->cube);
+}
+
+int read_img(HISTOGRAM * hist, char url[])
+{
+  int i,j,n,nx,ny,nb;
+  CIMAGE cim;
+  read_cimage(url,&cim);
+  init_histogram(4, hist);
+  fill_histogram(hist, &cim);
+  free_cimage(0,&cim);
+  return 1;
+}
+
+void helloWorld() {
+    printf("hello world");
 }

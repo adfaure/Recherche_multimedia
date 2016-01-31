@@ -57,7 +57,7 @@ def main(argv):
     fp = libc.fopen(res_file , "w")
 
     ##################################
-    #Begin main boucle
+    #Begin main loop
     ##################################
     hist = pointer(HISTROGRAM())
     begintime =  timeit.default_timer()
@@ -68,12 +68,12 @@ def main(argv):
         lib.print_histogram_libsvm(fp, hist, 0)
         lib.free_histogram(hist)
         nb_elem = nb_elem + 1
-        if(nb_elem % 10 == 0) :
+        if(nb_elem % 500 == 0) :
             logging.info(str(nb_elem) + ' in ' + str(timeit.default_timer() - begintime))
 
     endtime =  timeit.default_timer()
     logging.info('end after  ' + str(endtime -begintime))
-    logging.info(str(nb_elem) + ' have been traited')
+    logging.info(str(nb_elem) + ' have been treated')
 
 if __name__ == "__main__":
    main(sys.argv[1:])

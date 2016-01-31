@@ -48,7 +48,7 @@ void print_histogram(const HISTOGRAM *hist)
 }
 
 void print_histogram_libsvm(FILE * file, const HISTOGRAM* hist, int concept) {
-  fprintf(file, "%d ", concept);
+  fprintf(file, "%d", concept);
   for(int b = 0 ; b < hist->k; b++)
   {
     for(int g = 0 ; g < hist->k; g++)
@@ -57,7 +57,7 @@ void print_histogram_libsvm(FILE * file, const HISTOGRAM* hist, int concept) {
       {
         unsigned int indice = r + (hist->k*g) +  (hist->k * hist->k * b);
         if(hist->cube[indice] != 0) {
-          fprintf(file, "%d:%lf ", indice + 1 ,hist->cube[indice]);
+          fprintf(file, " %d:%lf", indice + 1 ,hist->cube[indice]);
         }
       }
     }

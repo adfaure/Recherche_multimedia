@@ -57,7 +57,7 @@ void print_histogram_libsvm(FILE * file, const HISTOGRAM* hist, int concept) {
       {
         unsigned int indice = r + (hist->k*g) +  (hist->k * hist->k * b);
         if(hist->cube[indice] != 0) {
-          fprintf(file, "%d:%lf ", indice ,hist->cube[indice]);
+          fprintf(file, "%d:%lf ", indice + 1 ,hist->cube[indice]);
         }
       }
     }

@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+import timeit
 from datetime import datetime
 from ctypes import *
 from structures import *
@@ -54,22 +54,24 @@ def main(argv):
     response = urllib2.urlopen(url_list).read()
 
     logging.info('Opening file for results ' + res_file)
-    fp = libc.fopen(res_file , "a+")
+    fp = libc.fopen(res_file , "w")
 
     ##################################
     #Begin main boucle
     ##################################
     hist = pointer(HISTROGRAM())
-    begintime = datetime.now().microsecond
+    begintime =  timeit.default_timer()
     logging.info('Begin at ' + str(begintime))
     nb_elem = 0
-    for line in response.splitlines() :
+    for line in response.splitlines():
         lib.read_img(hist,  line)
         lib.print_histogram_libsvm(fp, hist, 0)
         lib.free_histogram(hist)
-        nb_elem++
+        nb_elem = nb_elem + 1
+        if(nb_elem % 10 == 0) :
+            logging.info(str(nb_elem) + ' in ' + str(timeit.default_timer() - begintime))
 
-    endtime = datetime.now().microsecond
+    endtime =  timeit.default_timer()
     logging.info('end after  ' + str(endtime -begintime))
     logging.info(str(nb_elem) + ' have been traited')
 

@@ -70,6 +70,15 @@ void free_histogram(HISTOGRAM *hist) {
   free(hist->cube);
 }
 
+void reset_histogram(HISTOGRAM *hist) {
+  for(int i = 0 ; i <  histogram->k * histogram->k * histogram->k; i++)
+  {
+    histogram->cube[i] = 0.0;
+  }
+  histogram->img_size = 0;
+  histogram->k = 0;
+}
+
 int read_img(HISTOGRAM * hist, char url[])
 {
   int i,j,n,nx,ny,nb;

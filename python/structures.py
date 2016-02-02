@@ -6,3 +6,12 @@ class HISTROGRAM(Structure) :
         ("img_size", c_uint),
         ("cube", POINTER(c_float))
     ]
+
+class CIMAGE(Structure) :
+    _fields = [
+        ("nx", c_int),
+        ("ny", c_int),
+        ("r", POINTER(POINTER(c_char))),
+        ("g", POINTER(POINTER(c_char))),
+        ("b", POINTER(POINTER(c_char)))
+    ]

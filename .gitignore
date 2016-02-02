@@ -1,4 +1,6 @@
 build/
 python/log/
+python/work/
 results/
 .idea/
+*.pyc

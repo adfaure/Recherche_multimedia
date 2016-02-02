@@ -84,7 +84,7 @@ def main(argv):
     ##################################
     open_files = {}
     concept_streams = {}
-    join_seq = ""
+    join_seq = " "
 
     ##################################
     # Initisalizing concepts
@@ -96,7 +96,7 @@ def main(argv):
         logging.info("getting record from " + concept_record_url)
         concept_stream = urllib2.urlopen(concept_record_url).read()
         concept_streams[concept] = concept_stream.splitlines()
-        concept_file = res_file + concept
+        concept_file = res_file + concept + ".svm"
         logging.info("opening results file -> " + concept_file)
         fo = open(concept_file, "wb")
         open_files[concept] = fo

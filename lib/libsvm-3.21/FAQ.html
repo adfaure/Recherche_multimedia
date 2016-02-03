@@ -534,7 +534,7 @@ then on unix machines you can do
 <pre>
 cut -d '#' -f 1 < test.txt > test.features
 cut -d '#' -f 2 < test.txt > test.comments
-svm-predict test.feature train.model test.predicts
+svm-predict test.feature train_photos.model test.predicts
 paste -d '#' test.predicts test.comments | sed 's/#/ #/' > test.results
 </pre>
 -->
@@ -996,7 +996,7 @@ and increase the maximum number of chunks to allocate
 with mmap.
 
 <p>
-Therefore, in the main program (i.e. svm-train.c) you want
+Therefore, in the main program (i.e. svm-train_photos.c) you want
 to have
 <pre>
       #include &lt;malloc.h&gt;
@@ -1009,7 +1009,7 @@ and then in main():
 You can also set the environment variables instead
 of writing them in the program:
 <pre>
-$ M_MMAP_MAX=1000000 M_MMAP_THRESHOLD=32768 ./svm-train .....
+$ M_MMAP_MAX=1000000 M_MMAP_THRESHOLD=32768 ./svm-train_photos .....
 </pre>
 More information can be found by 
 <pre>

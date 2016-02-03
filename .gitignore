@@ -4,3 +4,7 @@ python/work/
 results/
 .idea/
 *.pyc
+download/
+log/
+
+install.ini

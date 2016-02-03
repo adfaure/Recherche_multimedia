@@ -70,7 +70,7 @@ void free_histogram(HISTOGRAM *hist) {
   free(hist->cube);
 }
 
-void reset_histogram(HISTOGRAM *hist) {
+void reset_histogram(HISTOGRAM *histogram) {
   for(int i = 0 ; i <  histogram->k * histogram->k * histogram->k; i++)
   {
     histogram->cube[i] = 0.0;

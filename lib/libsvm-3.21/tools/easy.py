@@ -13,20 +13,20 @@ if len(sys.argv) <= 1:
 is_win32 = (sys.platform == 'win32')
 if not is_win32:
 	svmscale_exe = "../svm-scale"
-	svmtrain_exe = "../svm-train"
+	svmtrain_exe = "../svm-train_photos"
 	svmpredict_exe = "../svm-predict"
 	grid_py = "./grid.py"
 	gnuplot_exe = "/usr/bin/gnuplot"
 else:
         # example for windows
 	svmscale_exe = r"..\windows\svm-scale.exe"
-	svmtrain_exe = r"..\windows\svm-train.exe"
+	svmtrain_exe = r"..\windows\svm-train_photos.exe"
 	svmpredict_exe = r"..\windows\svm-predict.exe"
 	gnuplot_exe = r"c:\tmp\gnuplot\binary\pgnuplot.exe"
 	grid_py = r".\grid.py"
 
 assert os.path.exists(svmscale_exe),"svm-scale executable not found"
-assert os.path.exists(svmtrain_exe),"svm-train executable not found"
+assert os.path.exists(svmtrain_exe),"svm-train_photos executable not found"
 assert os.path.exists(svmpredict_exe),"svm-predict executable not found"
 assert os.path.exists(gnuplot_exe),"gnuplot executable not found"
 assert os.path.exists(grid_py),"grid.py not found"

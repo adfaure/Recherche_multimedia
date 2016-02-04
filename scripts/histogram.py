@@ -88,7 +88,7 @@ def main(argv):
     nb_existing = 0
     for line in response.splitlines():
         if not os.path.exists(photo_path + "/" + line.split('/')[-1]):
-            # os.system("wget -P " + photo_path + " " + line + " >/dev/null 2>&1")
+            os.system("wget -P " + photo_path + " " + line + " >/dev/null 2>&1")
             nb_photo += 1
         else:
             nb_existing += 1

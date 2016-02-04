@@ -97,6 +97,9 @@ def main(argv):
     logging.info(str(nb_existing) + " photos already in the folder")
 
     logging.info('Opening file for results ' + res_file)
+    results_path = "/".join(os.path.join(res_file.split('/')[0:-1]))
+    if not os.path.exists(results_path):
+        os.system("mkdir -p " + results_path)
     fp = libc.fopen(res_file, "w")
 
     ##################################

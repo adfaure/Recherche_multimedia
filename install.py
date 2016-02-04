@@ -97,7 +97,7 @@ def main(argv):
     svm_install_dir = current_directory + '/lib/libsvm-3.21'
     if os.path.exists(svm_install_dir):
         config.set('libSvm', 'install_dir', svm_install_dir)
-        svm_train = svm_install_dir + '/svm-train_photos'
+        svm_train = svm_install_dir + '/svm-train'
         svm_predict = svm_install_dir + '/svm-predict'
         if os.path.exists(svm_train) and os.path.exists(svm_predict):
             config.set('libSvm', 'svm_train', svm_train)

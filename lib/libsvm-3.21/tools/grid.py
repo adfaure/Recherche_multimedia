@@ -18,12 +18,12 @@ class GridOption:
 	def __init__(self, dataset_pathname, options):
 		dirname = os.path.dirname(__file__)
 		if sys.platform != 'win32':
-			self.svmtrain_pathname = os.path.join(dirname, '../svm-train_photos')
+			self.svmtrain_pathname = os.path.join(dirname, '../svm-train')
 			self.gnuplot_pathname = '/usr/bin/gnuplot'
 		else:
 			# example for windows
-			self.svmtrain_pathname = os.path.join(dirname, r'..\windows\svm-train_photos.exe')
-			# svmtrain_pathname = r'c:\Program Files\libsvm\windows\svm-train_photos.exe'
+			self.svmtrain_pathname = os.path.join(dirname, r'..\windows\svm-train.exe')
+			# svmtrain_pathname = r'c:\Program Files\libsvm\windows\svm-train.exe'
 			self.gnuplot_pathname = r'c:\tmp\gnuplot\binary\pgnuplot.exe'
 		self.fold = 5
 		self.c_begin, self.c_end, self.c_step = -5,  15,  2
@@ -91,7 +91,7 @@ class GridOption:
 
 		self.pass_through_string = ' '.join(pass_through_options)
 		if not os.path.exists(self.svmtrain_pathname):
-			raise IOError('svm-train_photos executable not found')
+			raise IOError('svm-train executable not found')
 		if not os.path.exists(self.dataset_pathname):
 			raise IOError('dataset not found')
 		if self.resume_pathname and not os.path.exists(self.resume_pathname):
@@ -485,7 +485,7 @@ grid_options :
 -resume [pathname] : resume the grid task using an existing output file (default pathname is dataset.out)
     This is experimental. Try this option only if some parameters have been checked for the SAME data.
 
-svm_options : additional options for svm-train_photos""")
+svm_options : additional options for svm-train""")
 		sys.exit(1)
 	
 	if len(sys.argv) < 2:

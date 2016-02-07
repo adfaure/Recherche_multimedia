@@ -4,6 +4,7 @@ import os
 import subprocess
 import ConfigParser
 import shutil
+from scripts.utils import config_section_map
 
 
 def main(argv):
@@ -22,7 +23,6 @@ def main(argv):
 
     config.set('General', 'config_file', current_directory + '/install.ini')
     config.set('General', 'project_dir', current_directory)
-
     ######################################
     # Crating config section
     ######################################
@@ -30,7 +30,7 @@ def main(argv):
     config.add_section('libC')
     config.add_section('libSvm')
     config.add_section('Scripts')
-
+    config_general = config_section_map(config, 'General')
     #######################################
     # Create python related directory
     #######################################
@@ -61,7 +61,7 @@ def main(argv):
     config.set('General', 'scripts_dir', scripts_dir)
     config.set('Scripts', 'histogram', scripts_dir + '/histogram.py')
     config.set('Scripts', 'concept', scripts_dir + '/concept.py')
-
+    config.set('Scripts', 'svm-train', scripts_dir + '/svm-train.py')
     #######################################
     # Installing C module
     #######################################
@@ -78,7 +78,7 @@ def main(argv):
     # Building C Library
     res = subprocess.call(['cmake', '..'], cwd=build_dir)
     if res != 0:
-        print 'probleme for Cmake '
+        print 'problem for Cmake '
         sys.exit(1)
 
     res = subprocess.call('make', cwd=build_dir)
@@ -94,9 +94,21 @@ def main(argv):
     #######################################
     # Installing SVM
     #######################################
-    svm_install_dir = current_directory + '/lib/libsvm-3.21'
+    current_version = config_general['libsvm_version']
+    svm_install_dir = current_directory + '/lib/libsvm-'+current_version
     if os.path.exists(svm_install_dir):
-        config.set('libSvm', 'install_dir', svm_install_dir)
+        subprocess.call(['rm', 'r', svm_install_dir], cwd='lib')
+
+    tar_file = 'lib/libsvm-' + current_version + '.tar.gz'
+    if not os.path.exists(tar_file):
+        print "no svm provided "
+        sys.exit(1)
+
+    subprocess.call(['tar', '-zxvf' 'libsvm-' + current_version + '.tar.gz'], cwd='lib')
+    config.set('libSvm', 'install_dir', svm_install_dir)
+    if os.path.exists(svm_install_dir):
+        subprocess.call(["make", "clean"], cwd=svm_install_dir)
+        subprocess.call(["make"], cwd=svm_install_dir)
         svm_train = svm_install_dir + '/svm-train'
         svm_predict = svm_install_dir + '/svm-predict'
         if os.path.exists(svm_train) and os.path.exists(svm_predict):

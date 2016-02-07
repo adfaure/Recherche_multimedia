@@ -14,7 +14,7 @@ config = ConfigParser.ConfigParser()
 config.read('install.ini')
 
 
-def histogram_plan(config_scripts,config_general, section) :
+def histogram_plan(config_scripts, config_general, section):
     scripts_dir = config_general['scripts_dir']
     exec_file = config_scripts['histogram']
     download_specific_dir = os.path.join(config_general['download_dir'], section['dir_download'])
@@ -27,7 +27,7 @@ def histogram_plan(config_scripts,config_general, section) :
                      ], cwd=scripts_dir)
 
 
-def concept_plan(config_scripts,config_general, section) :
+def concept_plan(config_scripts, config_general, section):
     scripts_dir = config_general['scripts_dir']
     result_dir = os.path.join(config_general['results_dir'], section['output_dir'])
     histogram_base = os.path.join(config_general['results_dir'], section['histogram'])
@@ -38,6 +38,19 @@ def concept_plan(config_scripts,config_general, section) :
                      '-c', section['concept_file'],
                      '-o', result_dir,
                      '-u', section['url_base']
+                     ], cwd=scripts_dir)
+
+
+def svm_train_plan(config_scripts, config_general, section):
+    scripts_dir = config_general['scripts_dir']
+    result_dir = os.path.join(config_general['results_dir'], section['output_dir'])
+    input_dir = os.path.join(config_general['results_dir'], section['input_dir'])
+    exec_file = config_scripts['svm-train']
+    subprocess.call([exec_file,
+                     '--config', config_general['config_file'],
+                     '--input-svm', input_dir,
+                     '--svm-args', section['svm-args'],
+                     '--results-dir', result_dir,
                      ], cwd=scripts_dir)
 
 
@@ -70,6 +83,8 @@ def main(argv):
             histogram_plan(config_scripts, config_general, section)
         if section['script'] == 'concept':
             concept_plan(config_scripts, config_general, section)
+        if section['script'] == 'svm-train':
+            svm_train_plan(config_scripts, config_general, section)
     else:
         ##########################################################
         # Execution of the whole described plan in the config file

@@ -90,14 +90,12 @@ def main(argv):
         logging.info("output dir does not exist... creating " + res_file)
         os.system("mkdir -p " + res_file)
 
-
     # Recuperation de la liste de concept
     logging.info('get concept list from ' + concept_file)
     if concept_file.startswith('http://'):
         response = urllib2.urlopen(concept_file).read()
     else:
         response = open(concept_file).read()
-
 
     ##################################
     # Chargement de l'Histogramme en memoire

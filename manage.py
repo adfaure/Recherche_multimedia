@@ -96,6 +96,8 @@ def main(argv):
                 histogram_plan(config_scripts, config_general, section)
             if section['script'] == 'concept':
                 concept_plan(config_scripts, config_general, section)
+            if section['script'] == 'svm-train':
+                svm_train_plan(config_scripts, config_general, section)
 
 if __name__ == "__main__":
     main(sys.argv[1:])

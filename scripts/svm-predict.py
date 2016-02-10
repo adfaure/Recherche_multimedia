@@ -18,7 +18,8 @@ def main(argv):
     help_str = 'svm-train.py -c <concepts list>'
     try:
         opts, args = getopt.getopt(argv, "tc:ho:", ["concepts=", "results-dir=",
-                                                    "input-svm=", "config=", "svm-args="])
+                                                    "input-svm=", "config=",
+                                                    "svm-args=", "histograms="])
     except getopt.GetoptError as err:
         print help_str
         print str(err)
@@ -31,6 +32,8 @@ def main(argv):
             config_file = arg
         elif opt in "--input-svm":
             input_svm = arg
+        elif opt in "--histograms":
+            histogram_file = arg
         elif opt in "--results-dir":
             results_dir = arg
         elif opt in "--svm-args":
@@ -52,7 +55,7 @@ def main(argv):
     ############################
     # Initialisation de lib-svm
     ############################
-    svm_train = config_svm['svm_train']
+    svm_predict = config_svm['svm_predict']
 
     now = datetime.now()
     script_name = os.path.basename(__file__)
@@ -63,15 +66,16 @@ def main(argv):
     #########################
     # Init svm train_photos command
     #########################
-    train_cmd = [svm_train]
+    train_cmd = [svm_predict]
     if 'svm_options' in locals():
         logging.info('svm options ' + svm_options)
         train_cmd = train_cmd + svm_options.split(' ')  # bug with space in subprocess so we have to split it here
 
+    train_cmd += [histogram_file]
     #########################
     # Get list of svm files
     #########################
-    concepts = glob.glob(input_svm + '*.svm')
+    concepts = glob.glob(input_svm + '*.model')
     for concept in concepts:
         logging.info("concept file " + concept)
 
@@ -90,7 +94,7 @@ def main(argv):
     begin_time = timeit.default_timer()
     for concept_file in concepts:
         concept_name = os.path.basename(concept_file).split(".")[0]
-        model_output = results_dir + concept_name + '.model'
+        model_output = results_dir + concept_name + '.out'
         logging.info('model for ' + concept_name + ' registered at ' + model_output)
         command = [concept_file, model_output]
         command = train_cmd + command

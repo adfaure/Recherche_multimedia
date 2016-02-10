@@ -62,6 +62,7 @@ def main(argv):
     config.set('Scripts', 'histogram', scripts_dir + '/histogram.py')
     config.set('Scripts', 'concept', scripts_dir + '/concept.py')
     config.set('Scripts', 'svm-train', scripts_dir + '/svm-train.py')
+    config.set('Scripts', 'svm-predict', scripts_dir + '/svm-predict.py')
     #######################################
     # Installing C module
     #######################################

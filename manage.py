@@ -5,6 +5,8 @@ import os
 import ConfigParser
 import argparse
 import subprocess
+from mercurial.cmdutil import command
+
 from scripts.utils import config_section_map
 
 #########################
@@ -54,6 +56,23 @@ def svm_train_plan(config_scripts, config_general, section):
                      ], cwd=scripts_dir)
 
 
+def svm_predict_plan(config_scripts, config_general, section):
+    scripts_dir = config_general['scripts_dir']
+    result_dir = os.path.join(config_general['results_dir'], section['output_dir'])
+    input_dir = os.path.join(config_general['results_dir'], section['input_dir'])
+    exec_file = config_scripts['svm-predict']
+    histogram_file = section['histograms']
+    if not histogram_file.startswith("/"):
+        histogram_file = os.path.join(config_general['project_dir'], histogram_file)
+    predict_command = [exec_file, '--config', config_general['config_file'],
+                       '--input-svm', input_dir,
+                       '--histograms', histogram_file,
+                       '--results-dir', result_dir]
+    if 'svm-args' in section:
+        predict_command += ['--svm-args', section['svm-args']]
+    subprocess.call(predict_command, cwd=scripts_dir)
+
+
 def main(argv):
     """
         Entry point for Recherche multimedia.
@@ -85,6 +104,8 @@ def main(argv):
             concept_plan(config_scripts, config_general, section)
         if section['script'] == 'svm-train':
             svm_train_plan(config_scripts, config_general, section)
+        if section['script'] == 'svm-predict':
+            svm_predict_plan(config_scripts, config_general, section)
     else:
         ##########################################################
         # Execution of the whole described plan in the config file
@@ -98,6 +119,8 @@ def main(argv):
                 concept_plan(config_scripts, config_general, section)
             if section['script'] == 'svm-train':
                 svm_train_plan(config_scripts, config_general, section)
+            if section['script'] == 'svm-predict':
+                svm_predict_plan(config_scripts, config_general, section)
 
 if __name__ == "__main__":
     main(sys.argv[1:])

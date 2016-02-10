@@ -63,6 +63,7 @@ def main(argv):
     config.set('Scripts', 'concept', scripts_dir + '/concept.py')
     config.set('Scripts', 'svm-train', scripts_dir + '/svm-train.py')
     config.set('Scripts', 'svm-predict', scripts_dir + '/svm-predict.py')
+    config.set('Scripts', 'transform-trec_eval', scripts_dir + '/svmToTrecEval.py')
     #######################################
     # Installing C module
     #######################################

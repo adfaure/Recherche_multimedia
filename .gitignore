@@ -6,5 +6,6 @@ results/
 *.pyc
 download/
 log/
+lib/trec_eval_latest
 
 install.ini

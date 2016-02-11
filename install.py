@@ -30,6 +30,7 @@ def main(argv):
     config.add_section('libC')
     config.add_section('libSvm')
     config.add_section('Scripts')
+    config.add_section('trecEval')
     config_general = config_section_map(config, 'General')
     #######################################
     # Create python related directory
@@ -64,6 +65,8 @@ def main(argv):
     config.set('Scripts', 'svm-train', scripts_dir + '/svm-train.py')
     config.set('Scripts', 'svm-predict', scripts_dir + '/svm-predict.py')
     config.set('Scripts', 'transform-trec_eval', scripts_dir + '/svmToTrecEval.py')
+    config.set('Scripts', 'trec_eval', scripts_dir + '/trec_eval.py')
+
     #######################################
     # Installing C module
     #######################################
@@ -92,6 +95,25 @@ def main(argv):
     if os.path.exists(build_dir + '/src/libHistogram.so'):
         print 'libHistogram found at ' + lib_histogram
         config.set('libC', 'libHistogram', lib_histogram)
+    #######################################
+    # Installing trec_eval
+    #######################################
+    trec_eval_install_dir = current_directory + '/lib/trec_eval_latest'
+    if os.path.exists(trec_eval_install_dir):
+        subprocess.call(['rm', '-r', trec_eval_install_dir], cwd='lib')
+
+    subprocess.call(['mkdir', trec_eval_install_dir], cwd='lib')
+    tar_file = 'lib/trec_eval_latest.tar.gz'
+    if not os.path.exists(tar_file):
+        print "no trec eval provided "
+        sys.exit(1)
+    subprocess.call(['tar', '-zxf' 'trec_eval_latest.tar.gz', '--directory',
+                     'trec_eval_latest', '--strip-components=2'], cwd='lib')
+    subprocess.call(['make'], cwd='lib/trec_eval_latest')
+    if not os.path.exists('lib/trec_eval_latest/trec_eval'):
+        print "installation of trec eval failed"
+        sys.exit(1)
+    config.set('trecEval', 'trec_eval', current_directory + '/lib/trec_eval_latest/trec_eval')
 
     #######################################
     # Installing SVM

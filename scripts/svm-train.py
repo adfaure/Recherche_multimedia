@@ -15,10 +15,12 @@ def main(argv):
     ###############################
     # Getting program options
     ###############################
+    nb_thread = 2
     help_str = 'svm-train.py -c <concepts list>'
     try:
         opts, args = getopt.getopt(argv, "tc:ho:", ["concepts=", "results-dir=",
-                                                    "input-svm=", "config=", "svm-args="])
+                                                    "input-svm=", "config=",
+                                                    "svm-args=", "nb-thread="])
     except getopt.GetoptError as err:
         print help_str
         print str(err)
@@ -35,6 +37,8 @@ def main(argv):
             results_dir = arg
         elif opt in "--svm-args":
             svm_options = arg
+        elif opt in "--nb-thread":
+            nb_thread = int(arg)
 
     #########################
     # Chargement de la config
@@ -60,6 +64,7 @@ def main(argv):
     logfile_name = os.path.basename(__file__).split('.')[0] + '-' + date_str + '.log'
     logging.basicConfig(filename=log_dir + '/' + logfile_name, level=logging.DEBUG)
 
+    logging.info("Running with " + str(nb_thread) + " threads ")
     #########################
     # Init svm train_photos command
     #########################
@@ -88,16 +93,30 @@ def main(argv):
 
     logging.info('initialisation des concepts')
     begin_time = timeit.default_timer()
+    cmds = []
     for concept_file in concepts:
+        command = []
         concept_name = os.path.basename(concept_file).split(".")[0]
         model_output = results_dir + concept_name + '.model'
         logging.info('model for ' + concept_name + ' registered at ' + model_output)
         command = [concept_file, model_output]
         command = train_cmd + command
         logging.info('svm call : ' + " ".join(command))
-        ret = subprocess.call(command)
-        if ret != 0:
-            logging.info('exit code from train_photos for ' + concept_name + ' : ' + str(ret))
+        cmds.append(command)
+
+    logging.info('---------------PROCESS--------------------')
+
+    process = []
+    while len(cmds) != 0 or len(process) != 0:
+        if len(process) < nb_thread and len(cmds) != 0:
+            cmd = cmds.pop()
+            process.append([cmd, subprocess.Popen(cmd)])
+            logging.info("running : " + " ".join(cmd))
+        for idx, p in enumerate(process):
+            if p[1].poll() is not None:
+                logging.info(" end : " + " ".join(p[0]))
+                process.pop(idx)
+
     end_time = timeit.default_timer()
     logging.info('end after  ' + str(end_time - begin_time) + 's generated ' + str(len(concepts)) + " concept models")
 

@@ -1,7 +1,6 @@
 #!/usr/bin/python
 import os
 import timeit
-import urllib2
 from datetime import datetime
 import sys
 import getopt
@@ -19,8 +18,8 @@ def main(argv):
     generate_all_file = False
     help_str = 'svm-train.py -c <concepts list>'
     try:
-        opts, args = getopt.getopt(argv, "", ["list-id=", "input-predictions=",
-                                              "config=", "all",
+        opts, args = getopt.getopt(argv, "", ["base-url-rel=", "input-top=",
+                                              "config=",
                                               "results-dir="])
     except getopt.GetoptError as err:
         print help_str
@@ -32,23 +31,23 @@ def main(argv):
             sys.exit()
         elif opt in "--config":
             config_file = arg
-        elif opt in "--input-predictions":
-            input_predictions = arg
-        elif opt in "--list-id":
-            list_id = arg
+        elif opt in "--input-top":
+            input_top_files = arg
+        elif opt in "--base-url-rel":
+            rel_base = arg
         elif opt in "--results-dir":
             results_dir = arg
-        elif opt in "--all":
-            generate_all_file = True
 
     if generate_all_file:
         logging.info("all option activated")
+
     #########################
     # Chargement de la config
     #########################
     config = ConfigParser.ConfigParser()
     config.read(config_file)
     config_general = config_section_map(config, 'General')
+    section_trec_eval = config_section_map(config, 'trecEval')
 
     #########################
     # Configuration du logger
@@ -61,22 +60,12 @@ def main(argv):
     logging.basicConfig(filename=log_dir + '/' + logfile_name, level=logging.DEBUG)
 
     #########################
-    # Get list of predictions files
+    # Get list of top formatted files
     #########################
-    concepts = glob.glob(input_predictions + '*.out')
+    concepts = glob.glob(os.path.join(input_top_files, '*.top'))
+    print input_top_files
     for concept in concepts:
         logging.info("concept file " + concept)
-
-    #########################
-    # Get list of id
-    #########################
-    logging.info('get concept list from ' + list_id)
-    if list_id.startswith('http://'):
-        res = urllib2.urlopen(list_id).read()
-    else:
-        res = open(list_id).read()
-    photo_ids = res.splitlines()
-    logging.info('found ids of ' + str(len(photo_ids)) + ' photos')
 
     ##########################
     # Create output dir
@@ -87,35 +76,23 @@ def main(argv):
         if not subprocess.call(['mkdir', '-p', results_dir]) == 0:
             logging.warning('cannot create output dir, aborting')
             sys.exit(1)
-    logging.info('output dir is ' + results_dir)
 
-    if generate_all_file:
-        fall = open(results_dir + 'all.top', "wb")
-
-    logging.info('initialisation des concepts')
     begin_time = timeit.default_timer()
+
     for concept_file in concepts:
         concept_name = os.path.basename(concept_file).split(".")[0]
-        top_output = results_dir + concept_name + '.top'
-        fo = open(concept_file)
-        file_result = open(top_output, 'wb')
-        predictions = fo.read()
-        lines = predictions.splitlines()
-        indicator = lines[0].split(" ")
-        score_row = 2
-        if indicator[1] == "1":
-            score_row = 1
-        idx_begin = 1
-        for photo_id in photo_ids:
-            id_string = photo_id.split(".")[0]
-            line = concept_name + " Q0 " + id_string + " 0 " + lines[idx_begin].split(" ")[score_row] + " R\n"
-            if generate_all_file:
-                fall.write(line)
-            file_result.write(line)
-            idx_begin += 1
-        file_result.close()
-    if generate_all_file:
-            fall.close()
+        res_output = results_dir + concept_name
+        rel_path = '/tmp/' + concept_name + '.rel'
+        url = rel_base + concept_name + ".rel"
+        os.system("wget -P /tmp/ " + rel_base + "/" + concept_name + ".rel " + ">/dev/null 2>&1")
+        if not os.path.exists(rel_path):
+            logging.warning("Download error dor file " + url)
+            sys.exit(1)
+        cmd = [section_trec_eval['trec_eval'], rel_path, concept_file]
+        with open(res_output, "w") as outfile:
+            ret = subprocess.call(cmd, stdout=outfile)
+            if ret != 0:
+                logging.warning("error for " + concept_file)
 
     end_time = timeit.default_timer()
     logging.info('end after  ' + str(end_time - begin_time) + 's generated ' + str(len(concepts)) + " concept models")

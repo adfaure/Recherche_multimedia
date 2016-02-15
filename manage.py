@@ -174,6 +174,7 @@ def main(argv):
     parser.add_argument('-f', action="store", dest='execution_file')
     parser.add_argument('-j', action="store", dest='job')
     parser.add_argument('-d', action="store", dest='directory')
+    parser.add_argument('-i', action="store", dest='init')
     options = parser.parse_args()
 
     config_general = config_section_map(config, 'General')
@@ -193,6 +194,12 @@ def main(argv):
     ###############################
     directory = options.directory
     job = options.job
+    init_plan = options.init
+    if init_plan is not None:
+        logging.info("running initialization plan ")
+        running_plan(init_plan, config_scripts, config_general)
+        logging.info("End initialisaiton")
+
     if job is not None:
         execution = ConfigParser.ConfigParser()
         execution.read(options.execution_file)

@@ -84,7 +84,8 @@ def main(argv):
         res_output = results_dir + concept_name
         rel_path = '/tmp/' + concept_name + '.rel'
         url = rel_base + concept_name + ".rel"
-        os.system("wget -P /tmp/ " + rel_base + "/" + concept_name + ".rel " + ">/dev/null 2>&1")
+        # curl instead of wget because wget do not override files
+        os.system("curl " + rel_base + "/" + concept_name + ".rel " + ">/tmp/" + concept_name + ".rel ")
         if not os.path.exists(rel_path):
             logging.warning("Download error dor file " + url)
             sys.exit(1)

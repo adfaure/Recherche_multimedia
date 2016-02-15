@@ -1,11 +1,12 @@
 #!/usr/bin/python
-
+from datetime import datetime
 import sys
+import timeit
 import os
 import ConfigParser
 import argparse
 import subprocess
-
+import logging
 from scripts.utils import config_section_map
 
 #########################
@@ -16,7 +17,15 @@ config.read('install.ini')
 
 
 def dispatch(config_scripts, config_general, section):
+    if 'skip' in section:
+        if 'True' == section['skip']:
+            if 'name' in section:
+                logging.info('skipping section ' + section['name'] + ' : ' + section['description'])
+            else:
+                logging.info('skipping section  : ' + section['description'])
+            return
     print section['description']
+    logging.info(section['description'])
     if section['script'] == 'histogram':
         histogram_plan(config_scripts, config_general, section)
     if section['script'] == 'concept':
@@ -49,10 +58,13 @@ def concept_plan(config_scripts, config_general, section):
     result_dir = os.path.join(config_general['results_dir'], section['output_dir'])
     histogram_base = os.path.join(config_general['results_dir'], section['histogram'])
     exec_file = config_scripts['concept']
+    concept_file = section['concept_file']
+    if not section['concept_file'].startswith('/') or section['concept_file'].startwith('http://'):
+        concept_file = os.path.join(config_general['project_dir'], section['concept_file'])
     subprocess.call([exec_file,
                      '--config', config_general['config_file'],
                      '-H', histogram_base,
-                     '-c', section['concept_file'],
+                     '-c', concept_file,
                      '-o', result_dir,
                      '-u', section['url_base']
                      ], cwd=scripts_dir)
@@ -67,8 +79,8 @@ def svm_train_plan(config_scripts, config_general, section):
                       '--input-svm', input_dir,
                       '--svm-args', section['svm-args'],
                       '--results-dir', result_dir ]
-    if 'nb-thread' in section:
-        cmd += ["--nb-thread", section["nb-thread"]]
+    if 'nb-threads' in section:
+        cmd += ["--nb-thread", section["nb-threads"]]
     subprocess.call(cmd, cwd=scripts_dir)
 
 
@@ -87,6 +99,8 @@ def svm_predict_plan(config_scripts, config_general, section):
                        '--results-dir', result_dir]
     if 'svm-args' in section:
         predict_command += ['--svm-args', section['svm-args']]
+    if 'nb-threads' in section:
+        predict_command += ["--nb-thread", section["nb-threads"]]
     subprocess.call(predict_command, cwd=scripts_dir)
 
 
@@ -136,6 +150,15 @@ def main(argv):
 
     config_general = config_section_map(config, 'General')
     config_scripts = config_section_map(config, 'Scripts')
+    #########################
+    # Configuration du logger
+    #########################
+    log_dir = config_general['log_dir']
+
+    now = datetime.now()
+    date_str = str(now.day) + '_' + str(now.hour) + '_' + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
+    logfile_name = os.path.basename(__file__).split('.')[0] + '-' + date_str + '.log'
+    logging.basicConfig(filename=log_dir + '/' + logfile_name, level=logging.DEBUG)
 
     ###############################
     # Load execution config
@@ -144,15 +167,27 @@ def main(argv):
     execution.read(options.execution_file)
     job = options.job
     if job is not None:
+        logging.info("running single job " + job)
         section = config_section_map(execution, job)
         dispatch(config_scripts, config_general, section)
     else:
         ##########################################################
         # Execution of the whole described plan in the config file
         ##########################################################
+        logging.info("running full execution ")
+        begin_time = timeit.default_timer()
         for execution_plan_section in execution.sections():
+            if execution_plan_section == "General":
+                continue
+            begin_time_section = timeit.default_timer()
+            logging.info("running plan : " + execution_plan_section)
             section = config_section_map(execution, execution_plan_section)
+            logging.info("running plan : " + section['description'])
             dispatch(config_scripts, config_general, section)
+            end_time_section = timeit.default_timer()
+            logging.info('section ' + execution_plan_section + ' took ' + str(end_time_section - begin_time_section) + 's')
+        end_time = timeit.default_timer()
+        logging.info("Total elapsed time " + str(end_time - begin_time) + "s ")
 
 if __name__ == "__main__":
     main(sys.argv[1:])

@@ -7,5 +7,6 @@ results/
 download/
 log/
 lib/trec_eval_latest
+lib/libsvm*
 
 install.ini

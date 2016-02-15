@@ -157,6 +157,19 @@ def main(argv):
     config.set('General', 'results_dir', results_dir)
 
     config.write(config_file)
+
+    #######################################
+    # Workign dir
+    #######################################
+    working_dir = current_directory + '/works'
+    if not os.path.exists(working_dir):
+        res = subprocess.call(['mkdir', '-p', working_dir])
+        if res != 0:
+            print 'cannot create ' + working_dir
+            sys.exit(1)
+    config.set('General', 'working_dir', working_dir)
+
+    config.write(config_file)
     config_file.close()
 
 if __name__ == "__main__":

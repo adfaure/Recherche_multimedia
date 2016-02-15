@@ -44,41 +44,41 @@ def histogram_plan(config_scripts, config_general, section):
     scripts_dir = config_general['scripts_dir']
     exec_file = config_scripts['histogram']
     download_specific_dir = os.path.join(config_general['download_dir'], section['dir_download'])
-    result_dir = os.path.join(config_general['results_dir'], section['results'])
+    working_dir = os.path.join(config_general['working_dir'], section['results'])
     subprocess.call([exec_file,
                      '--config', config_general['config_file'],
                      '-u', section['urls'],
-                     '-o', result_dir,
+                     '-o', working_dir,
                      '-d', download_specific_dir
                      ], cwd=scripts_dir)
 
 
 def concept_plan(config_scripts, config_general, section):
     scripts_dir = config_general['scripts_dir']
-    result_dir = os.path.join(config_general['results_dir'], section['output_dir'])
-    histogram_base = os.path.join(config_general['results_dir'], section['histogram'])
+    working_dir = os.path.join(config_general['working_dir'], section['output_dir'])
+    histogram_base = os.path.join(config_general['working_dir'], section['histogram'])
     exec_file = config_scripts['concept']
     concept_file = section['concept_file']
-    if not section['concept_file'].startswith('/') or section['concept_file'].startwith('http://'):
+    if not concept_file.startswith('/') and not concept_file.startswith('http://'):
         concept_file = os.path.join(config_general['project_dir'], section['concept_file'])
     subprocess.call([exec_file,
                      '--config', config_general['config_file'],
                      '-H', histogram_base,
                      '-c', concept_file,
-                     '-o', result_dir,
+                     '-o', working_dir,
                      '-u', section['url_base']
                      ], cwd=scripts_dir)
 
 
 def svm_train_plan(config_scripts, config_general, section):
     scripts_dir = config_general['scripts_dir']
-    result_dir = os.path.join(config_general['results_dir'], section['output_dir'])
-    input_dir = os.path.join(config_general['results_dir'], section['input_dir'])
+    working_dir = os.path.join(config_general['working_dir'], section['output_dir'])
+    input_dir = os.path.join(config_general['working_dir'], section['input_dir'])
     exec_file = config_scripts['svm-train']
     cmd = [exec_file, '--config', config_general['config_file'],
                       '--input-svm', input_dir,
                       '--svm-args', section['svm-args'],
-                      '--results-dir', result_dir ]
+                      '--results-dir', working_dir ]
     if 'nb-threads' in section:
         cmd += ["--nb-thread", section["nb-threads"]]
     subprocess.call(cmd, cwd=scripts_dir)
@@ -86,8 +86,8 @@ def svm_train_plan(config_scripts, config_general, section):
 
 def svm_predict_plan(config_scripts, config_general, section):
     scripts_dir = config_general['scripts_dir']
-    result_dir = os.path.join(config_general['results_dir'], section['output_dir'])
-    input_dir = os.path.join(config_general['results_dir'], section['input_dir'])
+    working_dir = os.path.join(config_general['working_dir'], section['output_dir'])
+    input_dir = os.path.join(config_general['working_dir'], section['input_dir'])
     exec_file = config_scripts['svm-predict']
     histogram_file = section['histograms']
     if not histogram_file.startswith("/"):
@@ -96,7 +96,7 @@ def svm_predict_plan(config_scripts, config_general, section):
     predict_command = [exec_file, '--config', config_general['config_file'],
                        '--input-svm', input_dir,
                        '--histograms', histogram_file,
-                       '--results-dir', result_dir]
+                       '--results-dir', working_dir]
     if 'svm-args' in section:
         predict_command += ['--svm-args', section['svm-args']]
     if 'nb-threads' in section:
@@ -106,21 +106,21 @@ def svm_predict_plan(config_scripts, config_general, section):
 
 def trec_eval_plan(config_scripts, config_general, section):
     scripts_dir = config_general['scripts_dir']
-    result_dir = os.path.join(config_general['results_dir'], section['output_dir'])
-    input_dir = os.path.join(config_general['results_dir'], section['input_dir'])
+    working_dir = os.path.join(config_general['results_dir'], section['output_dir'])
+    input_dir = os.path.join(config_general['working_dir'], section['input_dir'])
     exec_file = config_scripts['trec_eval']
     base_url = section['base-url']
     eval_cmd = [exec_file, '--config', config_general['config_file'],
                            '--input-top', input_dir,
-                           '--results-dir', result_dir,
+                           '--results-dir', working_dir,
                            '--base-url-rel', base_url]
     subprocess.call(eval_cmd, cwd=scripts_dir)
 
 
 def svm_to_trec_plan(config_scripts, config_general, section):
     scripts_dir = config_general['scripts_dir']
-    result_dir = os.path.join(config_general['results_dir'], section['output_dir'])
-    input_dir = os.path.join(config_general['results_dir'], section['input_dir'])
+    working_dir = os.path.join(config_general['working_dir'], section['output_dir'])
+    input_dir = os.path.join(config_general['working_dir'], section['input_dir'])
     exec_file = config_scripts['transform-trec_eval']
     list_id = section['list_id']
     if not list_id.startswith("/") and not list_id.startswith("http://"):
@@ -129,7 +129,7 @@ def svm_to_trec_plan(config_scripts, config_general, section):
     predict_command = [exec_file, '--config', config_general['config_file'],
                        '--input-predictions', input_dir,
                        '--list-id', list_id,
-                       '--results-dir', result_dir]
+                       '--results-dir', working_dir]
     if 'all' in section:
         predict_command += ["--all"]
     subprocess.call(predict_command, cwd=scripts_dir)

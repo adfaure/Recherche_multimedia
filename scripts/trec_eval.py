@@ -89,7 +89,7 @@ def main(argv):
         if not os.path.exists(rel_path):
             logging.warning("Download error dor file " + url)
             sys.exit(1)
-        cmd = [section_trec_eval['trec_eval'], rel_path, concept_file]
+        cmd = [section_trec_eval['trec_eval'],'-q' ,rel_path, concept_file]
         with open(res_output, "w") as outfile:
             ret = subprocess.call(cmd, stdout=outfile)
             if ret != 0:

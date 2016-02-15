@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import glob
 from datetime import datetime
 import sys
 import timeit
@@ -14,6 +15,32 @@ from scripts.utils import config_section_map
 #########################
 config = ConfigParser.ConfigParser()
 config.read('install.ini')
+
+
+def running_plan(file, config_scripts, config_general):
+    ##########################################################
+    # Execution of the whole described plan in the config file
+    ##########################################################
+    execution = ConfigParser.ConfigParser()
+    execution.read(file)
+    logging.info("##########################################")
+    logging.info("running plan from " + file)
+    logging.info("##########################################")
+    begin_time = timeit.default_timer()
+    for execution_plan_section in execution.sections():
+        if execution_plan_section == "General":
+            continue
+        begin_time_section = timeit.default_timer()
+        logging.info("-------------------------------------------")
+        logging.info("running section : " + execution_plan_section)
+        logging.info("-------------------------------------------")
+        section = config_section_map(execution, execution_plan_section)
+        logging.info("section : " + section['description'])
+        dispatch(config_scripts, config_general, section)
+        end_time_section = timeit.default_timer()
+        logging.info('section ' + execution_plan_section + ' took ' + str(end_time_section - begin_time_section) + 's')
+    end_time = timeit.default_timer()
+    logging.info("Total elapsed time " + str(end_time - begin_time) + "s ")
 
 
 def dispatch(config_scripts, config_general, section):
@@ -146,6 +173,7 @@ def main(argv):
     parser = argparse.ArgumentParser(description='Main for recherche multimedia.')
     parser.add_argument('-f', action="store", dest='execution_file')
     parser.add_argument('-j', action="store", dest='job')
+    parser.add_argument('-d', action="store", dest='directory')
     options = parser.parse_args()
 
     config_general = config_section_map(config, 'General')
@@ -163,31 +191,29 @@ def main(argv):
     ###############################
     # Load execution config
     ###############################
-    execution = ConfigParser.ConfigParser()
-    execution.read(options.execution_file)
+    directory = options.directory
     job = options.job
     if job is not None:
+        execution = ConfigParser.ConfigParser()
+        execution.read(options.execution_file)
         logging.info("running single job " + job)
         section = config_section_map(execution, job)
         dispatch(config_scripts, config_general, section)
+    elif directory is not None:
+        if not directory.startswith("/"):
+            directory = os.path.join(config_general['project_dir'], directory)
+        if options.execution_file is not None:
+            logging.warning("Execution file provided, will be ignored in folder mode")
+        logging.info("Executing plan from folder " + directory)
+        plans = glob.glob(directory + "/*")
+        for plan_file in plans:
+            execution = ConfigParser.ConfigParser()
+            execution.read(plan_file)
+            running_plan(plan_file, config_scripts, config_general)
     else:
-        ##########################################################
-        # Execution of the whole described plan in the config file
-        ##########################################################
-        logging.info("running full execution ")
-        begin_time = timeit.default_timer()
-        for execution_plan_section in execution.sections():
-            if execution_plan_section == "General":
-                continue
-            begin_time_section = timeit.default_timer()
-            logging.info("running plan : " + execution_plan_section)
-            section = config_section_map(execution, execution_plan_section)
-            logging.info("running plan : " + section['description'])
-            dispatch(config_scripts, config_general, section)
-            end_time_section = timeit.default_timer()
-            logging.info('section ' + execution_plan_section + ' took ' + str(end_time_section - begin_time_section) + 's')
-        end_time = timeit.default_timer()
-        logging.info("Total elapsed time " + str(end_time - begin_time) + "s ")
+        execution = ConfigParser.ConfigParser()
+        execution.read(options.execution_file)
+        running_plan(options.execution_file, config_scripts, config_general)
 
 if __name__ == "__main__":
     main(sys.argv[1:])

@@ -40,7 +40,7 @@ def running_plan(file, config_scripts, config_general):
         end_time_section = timeit.default_timer()
         logging.info('section ' + execution_plan_section + ' took ' + str(end_time_section - begin_time_section) + 's')
     end_time = timeit.default_timer()
-    logging.info("Total elapsed time " + str(end_time - begin_time) + "s ")
+    logging.info("Total elapsed time " + str(end_time - begin_time) + "s for plan : " + execution_plan_section)
 
 
 def dispatch(config_scripts, config_general, section):
@@ -65,6 +65,10 @@ def dispatch(config_scripts, config_general, section):
         svm_to_trec_plan(config_scripts, config_general, section)
     if section['script'] == 'trec_eval':
         trec_eval_plan(config_scripts, config_general, section)
+    if section['script'] == 'formatSift':
+        format_sift_plan(config_scripts, config_general, section)
+    if section['script'] == 'kmeans':
+        kmeans_plan(config_scripts, config_general, section)
 
 
 def histogram_plan(config_scripts, config_general, section):
@@ -159,6 +163,38 @@ def svm_to_trec_plan(config_scripts, config_general, section):
                        '--results-dir', working_dir]
     if 'all' in section:
         predict_command += ["--all"]
+    subprocess.call(predict_command, cwd=scripts_dir)
+
+
+def format_sift_plan(config_scripts, config_general, section):
+    scripts_dir = config_general['scripts_dir']
+    working_dir = os.path.join(config_general['working_dir'], section['results'])
+    exec_file = config_scripts['format_sift']
+    dl_dir = os.path.join(config_general['download_dir'], section['dir_download'])
+    urls_file = section['urls']
+    predict_command = [exec_file,
+                       '--config', config_general['config_file'],
+                       '--url-list', urls_file,
+                       '--download-dir', dl_dir,
+                       '--results-dir', working_dir,
+                       '--freq-cut', section['freq']]
+    subprocess.call(predict_command, cwd=scripts_dir)
+
+
+def kmeans_plan(config_scripts, config_general, section):
+    scripts_dir = config_general['scripts_dir']
+    working_dir = os.path.join(config_general['working_dir'], section['results'])
+    data = section['input']
+    if not data.startswith("/"):
+        data = os.path.join(config_general['working_dir'], section['input'])
+
+    exec_file = config_scripts['sift_kmeans']
+    predict_command = [exec_file,
+                       '--config', config_general['config_file'],
+                       '--results', working_dir,
+                       '--samples', data,
+                       '--nb-iter', section['nb_iter_max'],
+                       '--nb-clusters', section['nb_clusters']]
     subprocess.call(predict_command, cwd=scripts_dir)
 
 

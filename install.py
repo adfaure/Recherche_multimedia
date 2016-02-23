@@ -59,6 +59,7 @@ def main(argv):
         if res != 0:
             print 'cannot create ' + scripts_dir
             sys.exit(1)
+
     config.set('General', 'scripts_dir', scripts_dir)
     config.set('Scripts', 'histogram', scripts_dir + '/histogram.py')
     config.set('Scripts', 'concept', scripts_dir + '/concept.py')
@@ -66,6 +67,9 @@ def main(argv):
     config.set('Scripts', 'svm-predict', scripts_dir + '/svm-predict.py')
     config.set('Scripts', 'transform-trec_eval', scripts_dir + '/svmToTrecEval.py')
     config.set('Scripts', 'trec_eval', scripts_dir + '/trec_eval.py')
+    config.set('Scripts', 'format_sift', scripts_dir + '/formatSift.py')
+    config.set('Scripts', 'kmeans', scripts_dir + '/kmeans_clustering.R')
+    config.set('Scripts', 'sift_kmeans', scripts_dir + '/siftKmeans.py')
 
     #######################################
     # Installing C module

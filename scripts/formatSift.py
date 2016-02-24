@@ -68,6 +68,8 @@ def main(argv):
         logging.warning("no sift files provided ")
         exit(1)
 
+    logging.info(url_list)
+
     if url_list.startswith("http://") or url_list.startswith("https://"):
         raw_file = urllib2.urlopen(url_list).read()
     else:

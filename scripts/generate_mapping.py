@@ -105,10 +105,17 @@ def main(argv):
             temp_sift_file = os.path.join("/tmp", os.path.splitext(os.path.basename(cmd[8]))[0] + ".temp")
             os.system("sed -n '4,$p' " + cmd[8] + " | tr -d \";\" |sed 's/<CIRCLE [1-9].*> //' > " + temp_sift_file)
             cmd[8] = temp_sift_file
-            process.append([cmd, subprocess.Popen(cmd, stdin=file_string, preexec_fn=os.setsid), temp_sift_file, file_string])
+            process.append([cmd, subprocess.Popen(cmd,stdout=subprocess.PIPE, stderr=subprocess.PIPE ,stdin=file_string, preexec_fn=os.setsid), temp_sift_file, file_string])
             logging.info("running : " + " ".join(cmd))
         for idx, p in enumerate(process):
             if p[1].poll() is not None:
+                stream_data = p[1].communicate()[0]
+                rc = p[1].returncode
+                print rc
+                if rc != 0:
+                    print stream_data
+                    logging.warning(stream_data)
+                    logging.warning("command " + " ".join(p[0]))
                 logging.info(" end : " + " ".join(p[0]))
                 logging.info(" remove temp file : " + p[2])
                 os.remove(p[2])
@@ -117,6 +124,7 @@ def main(argv):
 
     end_time = timeit.default_timer()
     logging.info('end after  ' + str(end_time - begin_time) + 's generated ' + str(len(sifts)) + " concept models")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main(sys.argv[1:])

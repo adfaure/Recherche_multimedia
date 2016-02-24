@@ -131,6 +131,7 @@ def main(argv):
                     step += cut_every
 
     res_file.close()
+    logging.info("end of program")
 
 if __name__ == "__main__":
     main(sys.argv[1:])

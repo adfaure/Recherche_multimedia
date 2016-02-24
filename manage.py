@@ -16,6 +16,16 @@ from scripts.utils import config_section_map
 #########################
 config = ConfigParser.ConfigParser()
 config.read('install.ini')
+subproc = {}
+
+
+def safe_quit():
+    logging.info("safe quit")
+    for p_name in subproc:
+        p = subproc[p_name]
+        if p.poll() is None:
+            logging.info("quit and terminate " + p_name)
+            p.terminate()
 
 
 def running_plan(file, config_scripts, config_general):
@@ -79,12 +89,16 @@ def histogram_plan(config_scripts, config_general, section):
     exec_file = config_scripts['histogram']
     download_specific_dir = os.path.join(config_general['download_dir'], section['dir_download'])
     working_dir = os.path.join(config_general['working_dir'], section['results'])
-    subprocess.call([exec_file,
-                     '--config', config_general['config_file'],
-                     '-u', section['urls'],
-                     '-o', working_dir,
-                     '-d', download_specific_dir
-                     ], cwd=scripts_dir)
+    cmd = [exec_file, '--config', config_general['config_file'],
+                      '-u', section['urls'],
+                      '-o', working_dir,
+                      '-d', download_specific_dir]
+    p = subprocess.Popen(cmd, cwd=scripts_dir)
+    atexit.register(p.terminate)
+    subproc['histogram_plan'] = p
+    while not p.poll() is not None:
+        pass
+    subproc.pop('histogram_plan')
 
 
 def concept_plan(config_scripts, config_general, section):
@@ -95,13 +109,17 @@ def concept_plan(config_scripts, config_general, section):
     concept_file = section['concept_file']
     if not concept_file.startswith('/') and not concept_file.startswith('http://'):
         concept_file = os.path.join(config_general['project_dir'], section['concept_file'])
-    subprocess.call([exec_file,
-                     '--config', config_general['config_file'],
-                     '-H', histogram_base,
-                     '-c', concept_file,
-                     '-o', working_dir,
-                     '-u', section['url_base']
-                     ], cwd=scripts_dir)
+    cmd = [exec_file, '--config', config_general['config_file'],
+                      '-H', histogram_base,
+                      '-c', concept_file,
+                      '-o', working_dir,
+                      '-u', section['url_base']
+                     ]
+    p = subprocess.Popen(cmd, cwd=scripts_dir)
+    subproc['concept_plan'] = p
+    while not p.poll() is not None:
+        pass
+    subproc.pop('concept_plan')
 
 
 def svm_train_plan(config_scripts, config_general, section):
@@ -115,7 +133,12 @@ def svm_train_plan(config_scripts, config_general, section):
                       '--results-dir', working_dir ]
     if 'nb-threads' in section:
         cmd += ["--nb-thread", section["nb-threads"]]
-    subprocess.call(cmd, cwd=scripts_dir)
+
+    p = subprocess.Popen(cmd, cwd=scripts_dir)
+    subproc['svm_train_plan'] = p
+    while not p.poll() is not None:
+        pass
+    subproc.pop('svm_train_plan')
 
 
 def svm_predict_plan(config_scripts, config_general, section):
@@ -135,7 +158,11 @@ def svm_predict_plan(config_scripts, config_general, section):
         predict_command += ['--svm-args', section['svm-args']]
     if 'nb-threads' in section:
         predict_command += ["--nb-thread", section["nb-threads"]]
-    subprocess.call(predict_command, cwd=scripts_dir)
+    p = subprocess.Popen(predict_command, cwd=scripts_dir)
+    subproc['svm_predict_plan'] = p
+    while not p.poll() is not None:
+        pass
+    subproc.pop('svm_predict_plan')
 
 
 def trec_eval_plan(config_scripts, config_general, section):
@@ -148,7 +175,11 @@ def trec_eval_plan(config_scripts, config_general, section):
                            '--input-top', input_dir,
                            '--results-dir', working_dir,
                            '--base-url-rel', base_url]
-    subprocess.call(eval_cmd, cwd=scripts_dir)
+    p = subprocess.Popen(eval_cmd, cwd=scripts_dir)
+    subproc['trec_eval_plan'] = p
+    while not p.poll() is not None:
+        pass
+    subproc.pop('trec_eval_plan')
 
 
 def svm_to_trec_plan(config_scripts, config_general, section):
@@ -160,13 +191,17 @@ def svm_to_trec_plan(config_scripts, config_general, section):
     if not list_id.startswith("/") and not list_id.startswith("http://"):
         list_id = os.path.join(config_general['project_dir'], list_id)
 
-    predict_command = [exec_file, '--config', config_general['config_file'],
-                       '--input-predictions', input_dir,
-                       '--list-id', list_id,
-                       '--results-dir', working_dir]
+    cmd = [exec_file, '--config', config_general['config_file'],
+                      '--input-predictions', input_dir,
+                      '--list-id', list_id,
+                      '--results-dir', working_dir]
     if 'all' in section:
-        predict_command += ["--all"]
-    subprocess.call(predict_command, cwd=scripts_dir)
+        cmd += ["--all"]
+    p = subprocess.Popen(cmd, cwd=scripts_dir)
+    subproc['svm_to_trec_plan'] = p
+    while not p.poll() is not None:
+        pass
+    subproc.pop('svm_to_trec_plan')
 
 
 def format_sift_plan(config_scripts, config_general, section):
@@ -175,13 +210,16 @@ def format_sift_plan(config_scripts, config_general, section):
     exec_file = config_scripts['format_sift']
     dl_dir = os.path.join(config_general['download_dir'], section['dir_download'])
     urls_file = section['urls']
-    predict_command = [exec_file,
-                       '--config', config_general['config_file'],
-                       '--url-list', urls_file,
-                       '--download-dir', dl_dir,
-                       '--results-dir', working_dir,
-                       '--freq-cut', section['freq']]
-    subprocess.call(predict_command, cwd=scripts_dir)
+    cmd = [exec_file, '--config', config_general['config_file'],
+                      '--url-list', urls_file,
+                      '--download-dir', dl_dir,
+                      '--results-dir', working_dir,
+                      '--freq-cut', section['freq']]
+    p = subprocess.Popen(cmd, cwd=scripts_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    subproc['format_sift_plan'] = p
+    while not p.poll() is not None:
+        pass
+    subproc.pop('format_sift_plan')
 
 
 def kmeans_plan(config_scripts, config_general, section):
@@ -190,15 +228,17 @@ def kmeans_plan(config_scripts, config_general, section):
     data = section['input']
     if not data.startswith("/"):
         data = os.path.join(config_general['working_dir'], section['input'])
-
     exec_file = config_scripts['sift_kmeans']
-    predict_command = [exec_file,
-                       '--config', config_general['config_file'],
-                       '--results', working_dir,
-                       '--samples', data,
-                       '--nb-iter', section['nb_iter_max'],
-                       '--nb-clusters', section['nb_clusters']]
-    subprocess.call(predict_command, cwd=scripts_dir)
+    cmd = [exec_file, '--config', config_general['config_file'],
+                      '--results', working_dir,
+                      '--samples', data,
+                      '--nb-iter', section['nb_iter_max'],
+                      '--nb-clusters', section['nb_clusters']]
+    p = subprocess.Popen(cmd, cwd=scripts_dir)
+    subproc['kmeans_plan'] = p
+    while not p.poll() is not None:
+        pass
+    subproc.pop('kmeans_plan')
 
 
 def center_mapping_plan(config_scripts, config_general, section):
@@ -213,17 +253,17 @@ def center_mapping_plan(config_scripts, config_general, section):
     if not clusters_file.startswith('/'):
         clusters_file = os.path.join(config_general['working_dir'], clusters_file)
     exec_file = config_scripts['mapping_kmeans']
-    predict_command = [exec_file,
-                       '--config', config_general['config_file'],
-                       '--input-folder', sift_files_dir,
-                       '--results-dir', working_dir,
-                       '--cluster-map', clusters_file,
-                       '--nb-thread', section['nb_threads'],
-                       '--nb-clusters', section['nb_clusters']]
-    p = subprocess.Popen(predict_command, cwd=scripts_dir)
-    atexit.register(p.terminate)
-    while not p.poll():
+    cmd = [exec_file, '--config', config_general['config_file'],
+                      '--input-folder', sift_files_dir,
+                      '--results-dir', working_dir,
+                      '--cluster-map', clusters_file,
+                      '--nb-thread', section['nb_threads'],
+                      '--nb-clusters', section['nb_clusters']]
+    p = subprocess.Popen(cmd, cwd=scripts_dir)
+    subproc['center_mapping_plan'] = p
+    while not p.poll() is not None:
         pass
+    subproc.pop('center_mapping_plan')
 
 
 def main(argv):
@@ -252,6 +292,8 @@ def main(argv):
     date_str = str(now.day) + '_' + str(now.hour) + '_' + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     logfile_name = os.path.basename(__file__).split('.')[0] + '-' + date_str + '.log'
     logging.basicConfig(filename=log_dir + '/' + logfile_name, level=logging.DEBUG)
+
+    atexit.register(safe_quit)
 
     ###############################
     # Load execution config

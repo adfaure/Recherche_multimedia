@@ -6,6 +6,7 @@ import timeit
 import os
 import ConfigParser
 import argparse
+import atexit
 import subprocess
 import logging
 from scripts.utils import config_section_map
@@ -69,6 +70,8 @@ def dispatch(config_scripts, config_general, section):
         format_sift_plan(config_scripts, config_general, section)
     if section['script'] == 'kmeans':
         kmeans_plan(config_scripts, config_general, section)
+    if section['script'] == 'cluster_mapping':
+        center_mapping_plan(config_scripts, config_general, section)
 
 
 def histogram_plan(config_scripts, config_general, section):
@@ -198,6 +201,31 @@ def kmeans_plan(config_scripts, config_general, section):
     subprocess.call(predict_command, cwd=scripts_dir)
 
 
+def center_mapping_plan(config_scripts, config_general, section):
+    scripts_dir = config_general['scripts_dir']
+    working_dir = section['results']
+    if not working_dir.startswith("/"):
+        working_dir = os.path.join(config_general['working_dir'], section['results'])
+    sift_files_dir = section['input']
+    if not sift_files_dir.startswith("/"):
+        sift_files_dir = os.path.join(config_general['download_dir'], section['input'])
+    clusters_file = section['clusters_file']
+    if not clusters_file.startswith('/'):
+        clusters_file = os.path.join(config_general['working_dir'], clusters_file)
+    exec_file = config_scripts['mapping_kmeans']
+    predict_command = [exec_file,
+                       '--config', config_general['config_file'],
+                       '--input-folder', sift_files_dir,
+                       '--results-dir', working_dir,
+                       '--cluster-map', clusters_file,
+                       '--nb-thread', section['nb_threads'],
+                       '--nb-clusters', section['nb_clusters']]
+    p = subprocess.Popen(predict_command, cwd=scripts_dir)
+    atexit.register(p.terminate)
+    while not p.poll():
+        pass
+
+
 def main(argv):
     """
         Entry point for Recherche multimedia.
@@ -234,7 +262,7 @@ def main(argv):
     if init_plan is not None:
         logging.info("running initialization plan ")
         running_plan(init_plan, config_scripts, config_general)
-        logging.info("End initialisaiton")
+        logging.info("End initialisation")
 
     if job is not None:
         execution = ConfigParser.ConfigParser()

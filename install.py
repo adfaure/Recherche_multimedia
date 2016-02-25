@@ -71,6 +71,7 @@ def main(argv):
     config.set('Scripts', 'kmeans', scripts_dir + '/kmeans_clustering.R')
     config.set('Scripts', 'sift_kmeans', scripts_dir + '/siftKmeans.py')
     config.set('Scripts', 'mapping_kmeans', scripts_dir + '/generate_mapping.py')
+    config.set('Scripts', 'sift_histogram', scripts_dir + '/sift_histograms.py')
     config.set('Scripts', '1nn', scripts_dir + '/1nn.R')
 
     #######################################

@@ -111,7 +111,6 @@ def main(argv):
             if p[1].poll() is not None:
                 stream_data = p[1].communicate()[0]
                 rc = p[1].returncode
-                print rc
                 if rc != 0:
                     print stream_data
                     logging.warning(stream_data)

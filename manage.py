@@ -82,6 +82,8 @@ def dispatch(config_scripts, config_general, section):
         kmeans_plan(config_scripts, config_general, section)
     if section['script'] == 'cluster_mapping':
         center_mapping_plan(config_scripts, config_general, section)
+    if section['script'] == 'sift_histogram':
+        sift_histogram_plan(config_scripts, config_general, section)
 
 
 def histogram_plan(config_scripts, config_general, section):
@@ -264,6 +266,26 @@ def center_mapping_plan(config_scripts, config_general, section):
     while not p.poll() is not None:
         pass
     subproc.pop('center_mapping_plan')
+
+
+def sift_histogram_plan(config_scripts, config_general, section):
+    scripts_dir = config_general['scripts_dir']
+    res_file = section['output']
+    if not res_file.startswith("/"):
+        res_file = os.path.join(config_general['working_dir'], section['output'])
+    input_dir = section['input']
+    if not input_dir.startswith("/"):
+        input_dir = os.path.join(config_general['working_dir'], section['input'])
+    exec_file = config_scripts['sift_histogram']
+    cmd = [exec_file, '--config', config_general['config_file'],
+                      '--input-dir', input_dir,
+                      '--nb-cluster', section['nb_clusters'],
+                      '--output', res_file]
+    p = subprocess.Popen(cmd, cwd=scripts_dir)
+    subproc['sift_histogram_plan'] = p
+    while not p.poll() is not None:
+        pass
+    subproc.pop('sift_histogram_plan')
 
 
 def main(argv):

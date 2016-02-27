@@ -1,0 +1,86 @@
+[${name}_MappingSiftFilesTrain]
+description = "Creer les mapping sift grace au clusters du kmeans."
+script = cluster_mapping
+clusters_file = sift_train/centers${nb_clusters}.txt
+input = ${name}/train_sift/
+results = ${name}/sift_train/mapping
+nb_clusters = ${nb_clusters}
+nb_threads =  4
+skip = False
+
+[${name}_MappingSiftFilesVal]
+description = "Creer les mapping sift grace au clusters du kmeans."
+script = cluster_mapping
+clusters_file = sift_train/centers${nb_clusters}.txt
+input = ${name}/val_sift/
+results = ${name}/sift_val/mapping
+nb_clusters = ${nb_clusters}
+nb_threads =  4
+skip = False
+
+[${name}_HistogramSiftTrain]
+description = "Genere les histogrammes"
+script = sift_histogram
+input = ${name}/sift_train/mapping
+output = ${name}/sift_train/sift_train_histogram.svm
+nb_clusters = ${nb_clusters}
+skip = False
+
+[${name}_HistogramSiftVal]
+description = "Genere les histogrammes"
+script = sift_histogram
+input = ${name}/sift_val/mapping
+output = ${name}/sift_val/sift_val_histogram.svm
+nb_clusters = ${nb_clusters}
+skip = False
+
+
+[TrainConcept]
+description = "Genere les fichiers de concepts pour l'entrainement."
+script = concept
+concept_file = http://mrim.imag.fr/GINF53C4/PROJET/concepts.txt
+histogram = ${name}/sift_train/train.svm
+output_dir = ${name}/sift_train/svm/
+url_base = http://mrim.imag.fr/GINF53C4/PROJET/train/ann/
+skip = False
+
+[${name}_TrainConcept]
+description = "Genere les fichiers de concepts pour l'entrainement."
+script = concept
+concept_file = http://mrim.imag.fr/GINF53C4/PROJET/concepts.txt
+histogram = ${name}/sift_train/sift_train_histogram.svm
+output_dir = ${name}/sift_train/svm/
+url_base = http://mrim.imag.fr/GINF53C4/PROJET/train/ann/
+skip = False
+
+[${name}_SVMTrain]
+description = "Genere les modeles svm."
+script = svm-train
+input_dir = ${name}/sift_train/svm/
+output_dir = ${name}/sift_train/model/
+svm-args = -b 1 -w+1 ${w} -g ${g} -h 0
+nb-threads = 4
+skip = False
+
+[${name}_SVMPredictVal]
+description = "Predict from histogram values [val]."
+script = svm-predict
+input_dir = ${name}/sift_train/model/
+histograms = ${name}/works/sift_val/sift_val_histogram.svm
+output_dir = ${name}/sift_val/out/
+svm-args = -b 1
+
+[${name}_SVMToTrecEval]
+description = "Transform svm prediction for trec_eval."
+script = transform-trec_eval
+input_dir = ${name}/sift_val/out/
+output_dir = ${name}/sift_val/trec_format/
+list_id = http://mrim.imag.fr/GINF53C4/PROJET/val/list.txt
+all = True
+
+[${name}_TrecEval]
+description = "Calculating score with trec_eval."
+script = trec_eval
+input_dir = ${name}/sift_val/trec_format
+output_dir = ${name}/sift_val/trec_eval_results/
+base-url = http://mrim.imag.fr/GINF53C4/PROJET/val/rel/

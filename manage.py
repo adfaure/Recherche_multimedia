@@ -34,6 +34,10 @@ def running_plan(file, config_scripts, config_general):
     ##########################################################
     execution = ConfigParser.ConfigParser()
     execution.read(file)
+    logging.info("                                           ")
+    logging.info("                                           ")
+    logging.info("                                           ")
+    logging.info("                                           ")
     logging.info("##########################################")
     logging.info("running plan from " + file)
     logging.info("##########################################")
@@ -42,6 +46,8 @@ def running_plan(file, config_scripts, config_general):
         if execution_plan_section == "General":
             continue
         begin_time_section = timeit.default_timer()
+        logging.info("                                           ")
+        logging.info("                                           ")
         logging.info("-------------------------------------------")
         logging.info("running section : " + execution_plan_section)
         logging.info("-------------------------------------------")

@@ -89,11 +89,12 @@ def main(argv):
         if not os.path.exists(rel_path):
             logging.warning("Download error dor file " + url)
             sys.exit(1)
-        cmd = [section_trec_eval['trec_eval'],'-q' ,rel_path, concept_file]
+        cmd = [section_trec_eval['trec_eval'], '-q', rel_path, concept_file]
         with open(res_output, "w") as outfile:
             ret = subprocess.call(cmd, stdout=outfile)
             if ret != 0:
                 logging.warning("error for " + concept_file)
+        os.remove("/tmp/" + concept_name + ".rel")
 
     end_time = timeit.default_timer()
     logging.info('end after  ' + str(end_time - begin_time) + 's generated ' + str(len(concepts)) + " concept models")

@@ -94,11 +94,26 @@ def main(argv):
             logging.warning('cannot create output dir, aborting')
             sys.exit(1)
     logging.info('output dir is ' + results_dir)
-
-    with open(output, 'w') as res_file:
+    output_temp = output + ".temp"
+    with open(output_temp, 'w') as res_file:
         for m in mappings:
-            print create_histogram(m, nb_cluster)
+            hist = create_histogram(m, nb_cluster)
+            res_file.write(os.path.basename(os.path.splitext(m)[0]))
+            res_file.write(" ")
+            for i, val in enumerate(hist):
+                if val != 0.0:
+                    res_file.write(str(i+1) + ":")
+                    res_file.write(str(val) + " ")
+            res_file.write("\n")
 
+    #####################
+    # Ordering the file
+    ####################
+    os.system("sort " + output_temp + " > " + output)
+    sed_command = "sed -i.back -e 's/^[0-9]*_[0-9]* /0 /g' " + output
+    os.system(sed_command)
+    logging.info(sed_command)
+    os.remove(output_temp)
 
 if __name__ == "__main__":
     main(sys.argv[1:])

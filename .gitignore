@@ -9,6 +9,6 @@ download/
 log/
 lib/trec_eval_latest
 lib/libsvm*
-plans/
 install.ini
+/download
 .Rhistory

@@ -41,8 +41,9 @@ def main(argv):
     logging.info('output dir is ' + res_folder)
 
     nb_clusters = ['256', '512']
-    g_values = [1, 5, 10, 25, 50, 100]
-    w_values = [1, 5, 20]
+
+    g_values = [25, 50, 100, 150]
+    w_values = [20, 50]
 
     with open(url_list, "r") as outfile:
         template = Template(outfile.read())

@@ -9,6 +9,7 @@ download/
 log/
 lib/trec_eval_latest
 lib/libsvm*
+sift_plan
 install.ini
 /download
 .Rhistory

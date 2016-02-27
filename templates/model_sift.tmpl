@@ -2,7 +2,7 @@
 description = "Creer les mapping sift grace au clusters du kmeans."
 script = cluster_mapping
 clusters_file = sift_train/centers${nb_clusters}.txt
-input = ${name}/train_sift/
+input = train_sift/
 results = ${name}/sift_train/mapping
 nb_clusters = ${nb_clusters}
 nb_threads =  4
@@ -12,7 +12,7 @@ skip = False
 description = "Creer les mapping sift grace au clusters du kmeans."
 script = cluster_mapping
 clusters_file = sift_train/centers${nb_clusters}.txt
-input = ${name}/val_sift/
+input = val_sift/
 results = ${name}/sift_val/mapping
 nb_clusters = ${nb_clusters}
 nb_threads =  4

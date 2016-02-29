@@ -41,7 +41,6 @@ def running_plan(file, config_scripts, config_general):
     logging.info("##########################################")
     logging.info("running plan from " + file)
     logging.info("##########################################")
-    begin_time = timeit.default_timer()
     for execution_plan_section in execution.sections():
         if execution_plan_section == "General":
             continue
@@ -56,8 +55,6 @@ def running_plan(file, config_scripts, config_general):
         dispatch(config_scripts, config_general, section)
         end_time_section = timeit.default_timer()
         logging.info('section ' + execution_plan_section + ' took ' + str(end_time_section - begin_time_section) + 's')
-    end_time = timeit.default_timer()
-    logging.info("Total elapsed time " + str(end_time - begin_time) + "s for plan : " + execution_plan_section)
 
 
 def dispatch(config_scripts, config_general, section):

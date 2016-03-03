@@ -8,7 +8,7 @@ import ConfigParser
 import getopt
 import re
 import logging
-from scripts.utils import config_section_map
+from utils import config_section_map
 
 
 def main(argv):
@@ -55,8 +55,9 @@ def main(argv):
     # Get list of results folders
     #############################
     results = glob.glob(input_folder + '/*')
-    writer = csv.writer(fo, delimiter=';')
-    writer.writerow(["concept", "g", "w", "map"])
+    fieldnames = ["concept", "g", "w", "map"]
+    writer = csv.DictWriter(fo, fieldnames=fieldnames)
+    writer.writeheader()
     for result in results:
         fname = os.path.basename(result)
         values = re.split("g-|_w-", fname)
@@ -65,10 +66,15 @@ def main(argv):
             concept_name = os.path.basename(file_res)
             with open(file_res, "rb") as trec_res:
                 for line in trec_res.read().splitlines():
-                    if "map" in line:
+                    if "map" in line and "gm_map" not in line and concept_name in line:
+                        print line
                         token_line = re.split('[ \t]*', line)
-                        writer.writerow([concept_name, values[1], values[2], token_line[-1]])
-                        break
+                        row = dict()
+                        row[fieldnames[0]] = concept_name
+                        row[fieldnames[1]] = values[1]
+                        row[fieldnames[2]] = values[2]
+                        row[fieldnames[3]] = token_line[-1]
+                        writer.writerow(row)
     fo.close()
 
 if __name__ == "__main__":

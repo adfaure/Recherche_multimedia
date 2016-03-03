@@ -59,11 +59,12 @@ def main(argv):
             logging.warning('cannot create output dir, aborting')
             sys.exit(1)
     logging.info('output dir is ' + res_folder)
-
+    gvalues = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    wvalues = [1, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 21, 22, 23, 24]
     with open(url_list, "r") as outfile:
         template = Template(outfile.read())
-        for g in range(1, 100, 1):
-            for w in range(1, 50, 1):
+        for g in gvalues:
+            for w in wvalues:
                 name = 'g-'+str(g)+'_w-'+str(w)
                 with open(res_folder + "/" + name + ".ini", "w") as plan:
                     config = template.substitute(g=g, w=w, name=name)

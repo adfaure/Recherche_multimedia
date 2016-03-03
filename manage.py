@@ -329,7 +329,7 @@ def main(argv):
     if init_plan is not None:
         logging.info("running initialization plan ")
         running_plan(init_plan, config_scripts, config_general)
-        logging.info("End initialisation")
+        logging.info("End initialisation plan")
 
     if job is not None:
         execution = ConfigParser.ConfigParser()

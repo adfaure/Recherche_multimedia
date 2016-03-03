@@ -22,7 +22,8 @@ mydata <- tmptable
 wss <- (nrow(mydata)-1)
 
 for (i in 1:1000) {
-  wss[i] <- sum(kmeans(tmptable,i,as.integer(cmd_args[10]))$withinss)
+  t = i*5
+  wss[i] <- sum(kmeans(tmptable,t,as.integer(cmd_args[10]))$withinss)
   write(i, "/home/dadou/Documents/Projets/RM/kmeans.txt")
 }
 

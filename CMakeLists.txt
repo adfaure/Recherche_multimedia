@@ -7,4 +7,3 @@ project (IDM)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
 
 add_subdirectory (src)
-add_subdirectory (demo)

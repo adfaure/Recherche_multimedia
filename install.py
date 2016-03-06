@@ -163,10 +163,8 @@ def main(argv):
             sys.exit(1)
     config.set('General', 'results_dir', results_dir)
 
-    config.write(config_file)
-
     #######################################
-    # Workign dir
+    # Working dir
     #######################################
     working_dir = current_directory + '/works'
     if not os.path.exists(working_dir):

@@ -105,7 +105,7 @@ def main(argv):
             temp_sift_file = os.path.join("/tmp", os.path.splitext(os.path.basename(cmd[8]))[0] + ".temp")
             os.system("sed -n '4,$p' " + cmd[8] + " | tr -d \";\" |sed 's/<CIRCLE [1-9].*> //' > " + temp_sift_file)
             cmd[8] = temp_sift_file
-            process.append([cmd, subprocess.Popen(cmd,stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=file_string, preexec_fn=os.setsid), temp_sift_file, file_string])
+            process.append([cmd, subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=file_string, preexec_fn=os.setsid), temp_sift_file, file_string])
             logging.info("running : " + " ".join(cmd))
         for idx, p in enumerate(process):
             if p[1].poll() is not None:

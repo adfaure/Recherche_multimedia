@@ -13,3 +13,4 @@ sift_plans
 install.ini
 /download
 .Rhistory
+webapp/venv/

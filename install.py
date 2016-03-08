@@ -31,6 +31,8 @@ def main(argv):
     config.add_section('libSvm')
     config.add_section('Scripts')
     config.add_section('trecEval')
+    config.add_section('Predict')
+
     config_general = config_section_map(config, 'General')
     #######################################
     # Create python related directory
@@ -60,7 +62,11 @@ def main(argv):
             print 'cannot create ' + scripts_dir
             sys.exit(1)
 
+    predict_files = current_directory + '/predict_files'
+
     config.set('General', 'scripts_dir', scripts_dir)
+    config.set('General', 'predict_files', predict_files)
+
     config.set('Scripts', 'histogram', scripts_dir + '/histogram.py')
     config.set('Scripts', 'concept', scripts_dir + '/concept.py')
     config.set('Scripts', 'svm-train', scripts_dir + '/svm-train.py')
@@ -73,6 +79,13 @@ def main(argv):
     config.set('Scripts', 'mapping_kmeans', scripts_dir + '/generate_mapping.py')
     config.set('Scripts', 'sift_histogram', scripts_dir + '/sift_histograms.py')
     config.set('Scripts', '1nn', scripts_dir + '/1nn.R')
+
+    config.set('Predict', 'best_results_sift', os.path.join(predict_files, 'best_results_sift.txt.sort'))
+    config.set('Predict', 'best_results_color', os.path.join(predict_files, 'best_results_color.txt.sort'))
+    config.set('Predict', 'centers_folders', os.path.join(predict_files, 'centers'))
+    config.set('Predict', 'color_folders', os.path.join(predict_files, 'color'))
+    config.set('Predict', 'sift_folders', os.path.join(predict_files, 'sift'))
+    config.set('Predict', 'concepts', os.path.join(predict_files, 'concepts.txt'))
 
     #######################################
     # Installing C module

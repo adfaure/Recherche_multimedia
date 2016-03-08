@@ -1,8 +1,6 @@
 #!/usr/bin/python
 import os
-from datetime import datetime
 import sys
-import ConfigParser
 import getopt
 import subprocess
 import logging

@@ -1,14 +1,23 @@
 import os
-from flask import Flask, request, redirect, url_for
+import uuid
+
+from flask import Flask, request, redirect, url_for, render_template
 from werkzeug import secure_filename
 import subprocess
 import time
 
-UPLOAD_FOLDER = '/tmp/'
+UPLOAD_FOLDER = '/www/index_mult'
 ALLOWED_EXTENSIONS = set(['jpg'])
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
+def generate_random_folder():
+    temp_folder_name = os.path.join(app.config['UPLOAD_FOLDER'], 'temp_' + str(uuid.uuid4()) + str(uuid.uuid4()))
+    while os.path.exists(temp_folder_name):
+        temp_folder_name = os.path.join(app.config['UPLOAD_FOLDER'], 'temp_' + str(uuid.uuid4()) + str(uuid.uuid4()))
+    return temp_folder_name
 
 
 def allowed_file(filename):
@@ -29,26 +38,42 @@ def eval_file(file_path):
     app.logger.debug("fin eval")
 
 
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if request.method == 'POST':
+        uploaded_file = request.files['file']
+        if uploaded_file and allowed_file(uploaded_file.filename):
+            filename = secure_filename(uploaded_file.filename)
+            temp_folder_name = generate_random_folder()
+            photo_folder = os.path.join(app.config['UPLOAD_FOLDER'], temp_folder_name)
+            os.system("mkdir -p " + photo_folder)
+            uploaded_file.save(os.path.join(photo_folder, filename))
+            eval_file(os.path.join(photo_folder, filename))
+            return "", 200
+    return "", 404
+
+
+@app.route('/upload_url', methods=['POST'])
+def upload_url():
+    if request.method == 'POST':
+        photo_url = request.form['url']
+        if not photo_url.startswith("http://") or photo_url.startswith("https://"):
+            return "Wrong url must begin with http:// or https://", 400
+        else:
+            folder_name = generate_random_folder()
+            file_name = os.path.basename(photo_url)
+            os.mkdir(folder_name)
+            os.system('curl ' + photo_url + ' > ' + os.path.join(folder_name, file_name))
+            eval_file(os.path.join(folder_name, file_name))
+        return "", 200
+    return "", 404
+
+
 @app.route("/", methods=['GET', 'POST'])
 def index():
-    if request.method == 'POST':
-        file = request.files['file']
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            app.logger.debug("getting file " + filename)
-            eval_file(os.path.join(UPLOAD_FOLDER, filename))
-            return redirect(url_for('index'))
-    return """
-    <!doctype html>
-    <title>Upload new File</title>
-        <h1>Upload new File</h1>
-    <form action="" method=post enctype=multipart/form-data>
-      <p><input type=file name=file>
-         <input type=submit value=Upload>
-    </form>
-    <p>%s</p>
-    """ % "<br>".join(os.listdir(app.config['UPLOAD_FOLDER'],))
+    return render_template('index.html')
 
 if __name__ == "__main__":
+    if not os.path.exists(app.config['UPLOAD_FOLDER']):
+        os.system("mkdir -p " + app.config['UPLOAD_FOLDER'])
     app.run(host='0.0.0.0', port=5000, debug=True)

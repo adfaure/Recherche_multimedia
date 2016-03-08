@@ -10,7 +10,7 @@ def main(argv):
     ###############################
     help_str = 'no help provided'
     try:
-        opts, args = getopt.getopt(argv, "o:c:", ["output-file=", "csv-file="])
+        opts, args = getopt.getopt(argv, "o:c:", ["csv-file="])
     except getopt.GetoptError as err:
         print help_str
         print str(err)
@@ -19,8 +19,6 @@ def main(argv):
         if opt == '-h':
             print help_str
             sys.exit()
-        elif opt in ("-o", "--output-file"):
-            res_file = arg
         elif opt in ("-c", "--csv-file"):
             csv_path = arg
 
@@ -42,8 +40,7 @@ def main(argv):
         row = results[concept_name]
         wvalues.append(int(row['w']))
         gvalues.append(int(row['g']))
-        print 'concept ' + concept_name + ' g ' + row['g'] + ' w ' + row['w'] + ' ' + row['map']
-    print set(gvalues)
-    print set(wvalues)
+        #print 'concept ' + concept_name + ' g ' + row['g'] + ' w ' + row['w'] + ' ' + row['map']
+        print 'concept ' + concept_name + ' centers ' + row['centers'] + ' g ' + row['g'] + ' w ' + row['w'] + ' ' + row['map']
 if __name__ == "__main__":
     main(sys.argv[1:])

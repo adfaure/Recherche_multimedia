@@ -57,7 +57,7 @@ def upload_file():
 def upload_url():
     if request.method == 'POST':
         photo_url = request.form['url']
-        if not photo_url.startswith("http://") or photo_url.startswith("https://"):
+        if not (photo_url.startswith("http://") or photo_url.startswith("https://")):
             return "Wrong url must begin with http:// or https://", 400
         else:
             folder_name = generate_random_folder()

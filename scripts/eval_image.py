@@ -119,7 +119,9 @@ def main(argv):
                 concept_map['sift_w'] = w_value
                 concept_map['sift_centers'] = nb_centers
                 concept_map['sift_centers_file'] = centers_tmpl.substitute(nb_centers=nb_centers)
-                concept_map['sift_model_file'] = os.path.join(folder_path,'sift_train', 'model', concept_name + ".model")
+                concept_map['sift_model_file'] = os.path.join(folder_path, 'model', concept_name + ".model")
+                if not os.path.exists(os.path.join(folder_path, 'model', concept_name + ".model")):
+                    logging.warning("no model found : " + os.path.exists(os.path.join(folder_path, 'model', concept_name + ".model")))
                 model_folders[concept_name] = concept_map
                 logging.info("map for concept : " + concept_name + " -> " + str(concept_map))
     concepts = set(concepts)
@@ -217,7 +219,7 @@ def main(argv):
             Time.sleep(0)
             pass
 
-    finale_res = os.path.basename(image_path) + ".out"
+    finale_res = os.path.basename(image_path) + ".html"
     finale_res_path = os.path.join(working_dir, finale_res)
     with open(finale_res_path, "w") as final_res_stream:
         for res in res_files:
@@ -232,7 +234,7 @@ def main(argv):
                     res_map = content[1].split(" ")[1]
                 else:
                     res_map = content[1].split(" ")[2]
-                final_res_stream.write(cpt_name + " " + is_concept + " " + res_map + "\n")
+                final_res_stream.write(cpt_name + " " + is_concept + " " + res_map + "<br />")
 
 
 if __name__ == "__main__":

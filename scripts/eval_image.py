@@ -248,7 +248,8 @@ def main(argv):
                 res_map = content[1].split(" ")[2]
             collect_dict[cpt_name] = {
                 "map" : res_map,
-                "is_concept" : is_concept
+                "is_concept" : is_concept,
+                "concept" : cpt_name
             }
 
     finale_res = os.path.basename(image_path) + ".json"

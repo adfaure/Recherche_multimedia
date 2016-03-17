@@ -1,7 +1,7 @@
 import os
 import uuid
 
-from flask import Flask, request, redirect, url_for, render_template
+from flask import Flask, request, redirect, url_for, render_template, jsonify, Response
 from werkzeug import secure_filename
 import subprocess
 import time
@@ -32,14 +32,15 @@ def eval_file(file_path):
         '--image-path', file_path,
         '--result', 'nothing'
     ])
-    while not process.poll() is not None:
-        time.sleep(0)
-        pass
-    app.logger.debug("fin eval")
+    #while not process.poll() is not None:
+    #    time.sleep(0)
+    #    pass
+    return process.returncode
 
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
+    res = dict()
     if request.method == 'POST':
         uploaded_file = request.files['file']
         if uploaded_file and allowed_file(uploaded_file.filename):
@@ -49,12 +50,15 @@ def upload_file():
             os.system("mkdir -p " + photo_folder)
             uploaded_file.save(os.path.join(photo_folder, filename))
             eval_file(os.path.join(photo_folder, filename))
-            return "", 200
+            res["exec_path"] = os.path.basename(temp_folder_name)
+            res["photo_name"] = os.path.basename(filename)
+            return jsonify(res), 200
     return "", 404
 
 
 @app.route('/upload_url', methods=['POST'])
 def upload_url():
+    res = dict()
     if request.method == 'POST':
         photo_url = request.form['url']
         if not (photo_url.startswith("http://") or photo_url.startswith("https://")):
@@ -65,7 +69,9 @@ def upload_url():
             os.mkdir(folder_name)
             os.system('curl ' + photo_url + ' > ' + os.path.join(folder_name, file_name))
             eval_file(os.path.join(folder_name, file_name))
-        return "", 200
+            res["exec_path"] = os.path.basename(folder_name)
+            res["photo_name"] = os.path.basename(file_name)
+            return jsonify(res), 200
     return "", 404
 
 

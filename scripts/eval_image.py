@@ -9,6 +9,7 @@ import getopt
 import logging
 import ConfigParser
 import time as Time
+import json
 import subprocess
 from sift_histograms import create_histogram
 
@@ -69,6 +70,8 @@ def main(argv):
     ###########################
     if not os.path.exists(image_path):
         logging.warning("not image found at path " + image_path)
+        exit(1)
+
     working_dir = os.path.dirname(image_path)
 
     sift_file = os.path.join(working_dir, os.path.splitext(os.path.basename(image_path))[0] + '.sift')
@@ -133,6 +136,11 @@ def main(argv):
         Time.sleep(0)
         pass
 
+    rc = process.returncode
+    if rc != 0:
+        logging.warning("error while generating sift file")
+        exit(1)
+
     if not os.path.exists(sift_file):
         logging.warning('error while creating sift file')
         exit(1)
@@ -151,7 +159,7 @@ def main(argv):
             concept_map = model_folders[concept]
             mapping_file = os.path.join(working_dir, "mapping-center" + str(concept_map['sift_centers']) + ".map")
             logging.info("mapping at " + mapping_file)
-            map_files.append(mapping_file)  # on stock les chemin vers les fichier pour les histogrammes
+            map_files.append(mapping_file)  # on stock les chemin vers les fichiers pour les histogrammes
             if not os.path.exists(mapping_file):
                 command = []
                 command += ["R", "--slave", "--no-save", "--no-restore", "--no-environ", "--args"]
@@ -218,23 +226,35 @@ def main(argv):
         while predict_process.poll() is None:
             Time.sleep(0)
             pass
+        p_rc = predict_process.returncode
+        if p_rc != 0:
+            logging.warning("error during prediction for concept " + concept)
+            logging.warning("command : " + " ".join(predict_command))
+            exit(1)
 
-    finale_res = os.path.basename(image_path) + ".html"
+
+    collect_dict = dict()
+    for res in res_files:
+        cpt_name = os.path.basename(os.path.splitext(res)[0])
+        if not os.path.exists(res):
+            logging.warning("no output res for " + res)
+            continue
+        with open(res, "r") as results_stream:
+            content = results_stream.read().splitlines()
+            is_concept = content[1].split(" ")[0]
+            if content[0].split(" ")[1] == "1":
+                res_map = content[1].split(" ")[1]
+            else:
+                res_map = content[1].split(" ")[2]
+            collect_dict[cpt_name] = {
+                "map" : res_map,
+                "is_concept" : is_concept
+            }
+
+    finale_res = os.path.basename(image_path) + ".json"
     finale_res_path = os.path.join(working_dir, finale_res)
     with open(finale_res_path, "w") as final_res_stream:
-        for res in res_files:
-            cpt_name = os.path.basename(os.path.splitext(res)[0])
-            if not os.path.exists(res):
-                logging.warning("no output res for " + res)
-                continue
-            with open(res, "r") as results_stream:
-                content = results_stream.read().splitlines()
-                is_concept = content[1].split(" ")[0]
-                if content[0].split(" ")[1] == "1":
-                    res_map = content[1].split(" ")[1]
-                else:
-                    res_map = content[1].split(" ")[2]
-                final_res_stream.write(cpt_name + " " + is_concept + " " + res_map + "<br />")
+        final_res_stream.write(json.dumps(collect_dict))
 
 
 if __name__ == "__main__":

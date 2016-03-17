@@ -1,0 +1,4 @@
+Mon14 15:49:01,788 - [Impala.Core.Array.ReadFile ] Don't know how to read /www/index_mult/temp_8946d664-e605-4775-8a9d-c2fe2eb9bcfc220865c1-6384-4172-90ab-001e20aa3e54/5157086_20150721064416621_1_LARGE.jpg?t=1437400245000
+Mon14 15:49:01,788 - [Sandbox.koen.mainColorDescriptor ] [ERROR] Could not read input file: is it really a valid image? /www/index_mult/temp_8946d664-e605-4775-8a9d-c2fe2eb9bcfc220865c1-6384-4172-90ab-001e20aa3e54/5157086_20150721064416621_1_LARGE.jpg?t=1437400245000
+Mon14 15:50:33,853 - [Impala.Core.Array.ReadFile ] Don't know how to read /www/index_mult/temp_ae6612f2-a2b4-486f-b290-a6c16a75fbef04e8f739-6a9f-496d-9f6c-992adbe10cb6/5157086_20150721064416621_1_LARGE.jpg?t=1437400245000
+Mon14 15:50:33,857 - [Sandbox.koen.mainColorDescriptor ] [ERROR] Could not read input file: is it really a valid image? /www/index_mult/temp_ae6612f2-a2b4-486f-b290-a6c16a75fbef04e8f739-6a9f-496d-9f6c-992adbe10cb6/5157086_20150721064416621_1_LARGE.jpg?t=1437400245000

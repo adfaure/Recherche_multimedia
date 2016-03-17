@@ -14,3 +14,5 @@ install.ini
 /download
 .Rhistory
 webapp/venv/
+webapp/node_modules/
+errors.log

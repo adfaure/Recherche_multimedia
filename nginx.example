@@ -1,0 +1,18 @@
+server {
+
+    server_name eval;
+
+    location /index_mult {
+        root /www/;
+        autoindex on;
+        autoindex_format json;
+    }
+    
+    location /eval {
+       proxy_pass   http://localhost:5000/;
+    }
+    
+    location / {
+       proxy_pass   http://localhost:3000/public/;
+    }     
+}

@@ -240,11 +240,12 @@ var AppView = Backbone.View.extend({
     this.collection = new Results();
     this.collection.fetch({
       data: { page: this.currentPage},
-      remove: false
+      remove: false,
+      success : this.paginate.bind(this)
     });
-
+    this.paginate();
     $(window).scroll(function() {
-       if($(window).scrollTop() + $(window).height() == $(document).height()) {
+       if($(window).scrollTop() + $(window).height() >  $(document).height() - 100) {
            self.paginate();
        }
     });
@@ -332,7 +333,7 @@ var ResultView = Backbone.View.extend({
         model.fetch({ fetchType : "results" })
       }
 
-      if (++intervalCount > 1000 | model.get("complete")) {
+      if (++intervalCount > 100 | model.get("complete")) {
         clearInterval(checkCallBack)
       }
 

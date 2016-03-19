@@ -7,7 +7,7 @@ import subprocess
 import time
 
 UPLOAD_FOLDER = '/var/www/index_mult'
-ALLOWED_EXTENSIONS = set(['jpg', 'png'])
+ALLOWED_EXTENSIONS = set(['jpg', 'png', 'JPG', 'PNG'])
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER

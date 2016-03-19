@@ -118,18 +118,30 @@
   <div class="callout">
     <h2><%= photo_name %></h2>
     <div class="row">
-      <div class="small-6 large-6 columns">
+      <div class="large-6 columns">
         <img class="thumbnail" src="<%= photo_path %>" >
       </div>
-      <div class="text-center small-6 large-6 columns" >
-          <% if(typeof res !== 'undefined')  {
-            _.each(res, function(attr) {  %>
+      <div class="text-center large-6 columns" >
+          <% if(typeof res !== 'undefined')  {  %>
               <div>
                 <div class="barchart"></div>
               </div>
-          <% }) } else { %>
+          <% } else { %>
             <i class="fa fa-5x fa-align-center fa-circle-o-notch fa-spin"></i>
           <% } %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="large-12 columns">
+      <% if(concepts.length <= 0)  { %>
+        <div>This photo doesn't match any concepts.</div>
+      <% } else { %>
+          <% _.each(concepts, function(elem) {  %>
+          <div class="callout success">
+            concept found : <%= elem.concept %>
+          </div>
+          <%  });  %>
+      <% } %>
       </div>
     </div>
   </div>

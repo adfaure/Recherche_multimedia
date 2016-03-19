@@ -99,7 +99,8 @@ $(function(){
 
     initialize : function(data) {
       this.set({
-        photo_path : 'index_mult/' + data.exec_path + '/' + data.photo_name
+        photo_path : 'index_mult/' + data.exec_path + '/' + data.photo_name,
+        concepts : []
       });
     },
 
@@ -209,6 +210,7 @@ $(function(){
       this.model = model;
       _.bindAll(this, "render");
       this.model.bind('change:res', this.render);
+      this.model.bind('change:concepts', this.render);
       var intervalCount = 0;
       var checkCallBack = setInterval(function(intervalModel, clearInt) {
         model.fetch({ fetchType : "files" });
@@ -230,10 +232,14 @@ $(function(){
 
     render: function() {
       var template = _.template( $("#results-tmpl").html());
+      console.log(this.model)
       this.$el.html(template(this.model.toJSON()));
       if(this.model.get('complete')) {
+        var concepts = _.filter(this.model.get('res'), function(elem) {
+          return elem.is_concept === "1";
+        });
+        this.model.set("concepts", concepts);
         this.$(".barchart").highcharts(this.model.toHighCharts());
-
       }
       return this;
     },

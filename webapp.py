@@ -62,7 +62,6 @@ def upload_file():
 def upload_url():
     res = dict()
     if request.method == 'POST':
-        print request.data
         dataDict = json.loads(request.data)
         photo_url = dataDict['url']
         if not (photo_url.startswith("http://") or photo_url.startswith("https://")):

@@ -6,7 +6,7 @@ from werkzeug import secure_filename
 import subprocess
 import time
 
-UPLOAD_FOLDER = '/www/index_mult'
+UPLOAD_FOLDER = '/var/www/index_mult'
 ALLOWED_EXTENSIONS = set(['jpg'])
 
 app = Flask(__name__)

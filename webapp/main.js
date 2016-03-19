@@ -173,7 +173,7 @@ $(function(){
 
   var Results = Backbone.Collection.extend({
     model: Result,
-    url: 'http://eval/index_mult/',
+    url: '/index_mult/',
 
     initialize : function(a,b,c) {
       this.on('add', this.addOne);
@@ -220,6 +220,7 @@ var AppView = Backbone.View.extend({
 
   paginate : function() {
     var self = this;
+    console.log("paginate")
     _.each(this.collection.paginate(this.currentPage, 2), function(model) {
       if(model.get("valid")) {
         self.currentPage++;
@@ -241,7 +242,7 @@ var AppView = Backbone.View.extend({
       data: { page: this.currentPage},
       remove: false
     });
-    
+
     $(window).scroll(function() {
        if($(window).scrollTop() + $(window).height() == $(document).height()) {
            self.paginate();

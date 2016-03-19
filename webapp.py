@@ -1,13 +1,13 @@
 import os
 import uuid
-
+import json
 from flask import Flask, request, redirect, url_for, render_template, jsonify, Response
 from werkzeug import secure_filename
 import subprocess
 import time
 
 UPLOAD_FOLDER = '/var/www/index_mult'
-ALLOWED_EXTENSIONS = set(['jpg'])
+ALLOWED_EXTENSIONS = set(['jpg', 'png'])
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -53,6 +53,8 @@ def upload_file():
             res["exec_path"] = os.path.basename(temp_folder_name)
             res["photo_name"] = os.path.basename(filename)
             return jsonify(res), 200
+        else :
+            return "file extension not allowed, only jpg and png",  400
     return "", 404
 
 
@@ -60,24 +62,25 @@ def upload_file():
 def upload_url():
     res = dict()
     if request.method == 'POST':
-        photo_url = request.form['url']
+        print request.data
+        dataDict = json.loads(request.data)
+        photo_url = dataDict['url']
         if not (photo_url.startswith("http://") or photo_url.startswith("https://")):
             return "Wrong url must begin with http:// or https://", 400
+        elif not allowed_file(photo_url):
+            return "file extension not allowed, only jpg and png", 400
         else:
             folder_name = generate_random_folder()
             file_name = os.path.basename(photo_url)
             os.mkdir(folder_name)
             os.system('curl ' + photo_url + ' > ' + os.path.join(folder_name, file_name))
+            if not os.path.exists(os.path.join(folder_name, file_name)):
+                return "We were not able to dowload the photo, was the url correct ?", 500
             eval_file(os.path.join(folder_name, file_name))
             res["exec_path"] = os.path.basename(folder_name)
             res["photo_name"] = os.path.basename(file_name)
             return jsonify(res), 200
     return "", 404
-
-
-@app.route("/", methods=['GET', 'POST'])
-def index():
-    return render_template('index.html')
 
 if __name__ == "__main__":
     if not os.path.exists(app.config['UPLOAD_FOLDER']):

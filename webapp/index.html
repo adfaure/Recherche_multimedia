@@ -18,7 +18,9 @@
     </div>
   </div>
 
+
   <div id="evalapp" class="row medium-8 large-7 columns">
+    <div id="alerts"></div>
     <div class="callout primary">
       <h2> Select a file from your computer </h2>
       <form id="upload-file" method="post" enctype="multipart/form-data">
@@ -33,16 +35,16 @@
       </form>
 
       <h2> Provide your url </h2>
-      <form id="url" method="post" enctype="multipart/form-data">
+      <div class="form" id="url">
         <div class="row">
           <div class="medium-12 columns">
             <label>Select a file
-              <input name="url" type="text">
+              <input id="input-url" name="url" type="text">
             </label>
             <button class="button" id="upload-url-btn" type="button">Send</button>
           </div>
         </div>
-      </form>
+      </div>
     </div>
 
     <div id="results">
@@ -88,6 +90,14 @@
     <a class="destroy"></a>
   </div>
   <input class="edit" type="text" value="<%- title %>" />
+</script>
+
+
+<script type="text/template" id="alert-tmpl">
+  <div data-alert class="callout text-center alert info radius">
+    <%= message %>
+    <a href="#" class="close">&times;</a>
+  </div>
 </script>
 
 <script type="text/template" id="stats-template">

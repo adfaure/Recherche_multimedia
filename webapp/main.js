@@ -2,6 +2,22 @@ $(function(){
 
   var cfg = JSON.parse($("#data").html());
 
+  var Message = Backbone.Model.extend({
+
+    initialize : function(message) {
+      this.set({
+        "message"  : message
+      });
+    },
+
+    defaults: function() {
+      return {
+        "message" : ""
+      };
+    }
+  });
+
+
   var Result = Backbone.Model.extend({
 
     url: function() {
@@ -30,7 +46,7 @@ $(function(){
 
         return {
           chart: {
-              type: 'bar'
+            type: 'bar'
           },
           title : { text : this.get('photo_name') },
           subtitle :  { text : this.get("hello") },
@@ -80,71 +96,7 @@ $(function(){
         };
       } else return {};
     },
-/*
 
-    $('#container').highcharts({
-        chart: {
-            type: 'bar'
-        },
-        title: {
-            text: 'Historic World Population by Region'
-        },
-        subtitle: {
-            text: 'Source: <a href="https://en.wikipedia.org/wiki/World_population">Wikipedia.org</a>'
-        },
-        xAxis: {
-            categories: ['Africa', 'America', 'Asia', 'Europe', 'Oceania'],
-            title: {
-                text: null
-            }
-        },
-        yAxis: {
-            min: 0,
-            title: {
-                text: 'Population (millions)',
-                align: 'high'
-            },
-            labels: {
-                overflow: 'justify'
-            }
-        },
-        tooltip: {
-            valueSuffix: ' millions'
-        },
-        plotOptions: {
-            bar: {
-                dataLabels: {
-                    enabled: true
-                }
-            }
-        },
-        legend: {
-            layout: 'vertical',
-            align: 'right',
-            verticalAlign: 'top',
-            x: -40,
-            y: 80,
-            floating: true,
-            borderWidth: 1,
-            backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
-            shadow: true
-        },
-        credits: {
-            enabled: false
-        },
-        series: [{
-            name: 'Year 1800',
-            data: [107, 31, 635, 203, 2]
-        }, {
-            name: 'Year 1900',
-            data: [133, 156, 947, 408, 6]
-        }, {
-            name: 'Year 2012',
-            data: [1052, 954, 4250, 740, 38]
-        }]
-    });
-});
-*/
     initialize : function(data) {
       this.set({
         photo_path : 'index_mult/' + data.exec_path + '/' + data.photo_name
@@ -182,6 +134,7 @@ $(function(){
     tagName:  "div",
 
     events: {
+
       'click #upload-file-btn ' : 'uploadFile',
       'click #upload-url-btn ' : 'uploadUrl'
     },
@@ -206,17 +159,21 @@ $(function(){
           $("#results").prepend(view.render().el);
           self.listViews.push(view);
         },
+        error: function(err) {
+          var view = new AlertView(new Message(err.responseText))
+          $("#alerts").prepend(view.render().el);
+        }
       });
     },
 
     uploadUrl : function() {
-      var form_data = new FormData($('#url')[0]);
       var cfg = JSON.parse($("#data").html());
+      var url =  $('#input-url').val();
       var self = this;
       $.ajax({
         type: 'POST',
         url: cfg.eval_url +  '/upload_url',
-        data: form_data,
+        data: JSON.stringify({ url : url }),
         contentType: false,
         cache: false,
         processData: false,
@@ -226,6 +183,10 @@ $(function(){
           $("#results").prepend(view.render().el);
           self.listViews.push(view);
         },
+        error : function(err) {
+          var view = new AlertView(new Message(err.responseText))
+          $("#alerts").prepend(view.render().el);
+        }
       });
     },
 
@@ -260,7 +221,7 @@ $(function(){
           model.fetch({ fetchType : "results" })
         }
 
-        if (++intervalCount > 10 | model.get("complete")) {
+        if (++intervalCount > 1000 | model.get("complete")) {
           clearInterval(checkCallBack)
         }
 
@@ -269,13 +230,44 @@ $(function(){
 
     render: function() {
       var template = _.template( $("#results-tmpl").html());
-      console.log("hello");
       this.$el.html(template(this.model.toJSON()));
-      console.log(this.model)
       if(this.model.get('complete')) {
         this.$(".barchart").highcharts(this.model.toHighCharts());
 
       }
+      return this;
+    },
+  });
+
+
+  var AlertView = Backbone.View.extend({
+
+    tagName : "div",
+
+    events: {
+    },
+
+    destroy_view: function() {
+
+      // COMPLETELY UNBIND THE VIEW
+      this.undelegateEvents();
+
+      this.$el.removeData().unbind();
+
+      // Remove view from DOM
+      this.remove();
+      Backbone.View.prototype.remove.call(this);
+
+    },
+
+    initialize: function(model) {
+      this.model = model;
+      setTimeout(this.destroy_view.bind(this), 10000);
+    },
+
+    render: function() {
+      var template = _.template( $("#alert-tmpl").html());
+      this.$el.html(template(this.model.toJSON()));
       return this;
     },
   });

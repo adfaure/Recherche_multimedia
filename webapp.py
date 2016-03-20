@@ -5,6 +5,8 @@ from flask import Flask, request, redirect, url_for, render_template, jsonify, R
 from werkzeug import secure_filename
 import subprocess
 import time
+import shutil
+
 
 UPLOAD_FOLDER = '/var/www/index_mult'
 ALLOWED_EXTENSIONS = set(['jpg', 'png', 'JPG', 'PNG'])
@@ -73,6 +75,9 @@ def upload_url():
             file_name = os.path.basename(photo_url)
             os.mkdir(folder_name)
             os.system('curl ' + photo_url + ' > ' + os.path.join(folder_name, file_name))
+            if (os.path.getsize(os.path.join(folder_name, file_name)) / 1024 / 1024) > 1:
+                shutil.rmtree(str(folder_name))
+                return "Request entity too large, max size 1M ", 500
             if not os.path.exists(os.path.join(folder_name, file_name)):
                 return "We were not able to dowload the photo, was the url correct ?", 500
             eval_file(os.path.join(folder_name, file_name))

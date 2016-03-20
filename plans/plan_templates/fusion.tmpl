@@ -1,0 +1,14 @@
+[FusionTrecFiles]
+description = "Fusion plusieur fichier trec eval pour une nouvelle evaluation."
+script = late_fusion
+results = fusion_sift-${sift}_color-${color}/
+input-file = ${base_folder}/entry_files/fusion_entry_sift-${sift}_color-${color}.txt
+skip = False
+
+
+[TrecEval]
+description = "Calculating score with trec_eval."
+script = trec_eval
+input_dir = fusion_sift-${sift}_color-${color}/
+output_dir = fusion_sift-${sift}_color-${color}/
+base-url = http://mrim.imag.fr/GINF53C4/PROJET/val/rel/

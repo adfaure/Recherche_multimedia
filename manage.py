@@ -87,7 +87,24 @@ def dispatch(config_scripts, config_general, section):
         center_mapping_plan(config_scripts, config_general, section)
     if section['script'] == 'sift_histogram':
         sift_histogram_plan(config_scripts, config_general, section)
+    if section['script'] == 'late_fusion':
+        late_fusion_plan(config_scripts, config_general, section)
 
+def late_fusion_plan(config_scripts, config_general, section):
+    scripts_dir = config_general['scripts_dir']
+    exec_file = config_scripts['late_fusion']
+    input_file = section['input-file']
+    if not input_file.startswith('/'):
+        input_file = os.path.join(config_general['project_dir'], input_file)
+    working_dir = os.path.join(config_general['working_dir'], section['results'])
+    cmd = [exec_file, '--config', config_general['config_file'],
+                      '-o', working_dir,
+                      '-i', input_file]
+    p = subprocess.Popen(cmd, cwd=scripts_dir)
+    subproc['late_fusion'] = p
+    while not p.poll() is not None:
+        pass
+    subproc.pop('late_fusion')
 
 def histogram_plan(config_scripts, config_general, section):
     scripts_dir = config_general['scripts_dir']
@@ -99,7 +116,6 @@ def histogram_plan(config_scripts, config_general, section):
                       '-o', working_dir,
                       '-d', download_specific_dir]
     p = subprocess.Popen(cmd, cwd=scripts_dir)
-    atexit.register(p.terminate)
     subproc['histogram_plan'] = p
     while not p.poll() is not None:
         pass

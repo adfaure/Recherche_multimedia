@@ -185,7 +185,9 @@ $(function(){
     },
 
     paginate : function(page, size) {
-      return this.models.slice(page * 2 ,(page * 2) + size);
+      console.log("ééé")
+
+      return this.models.slice(page * size ,(page * size) + size);
     },
 
     addOne : function(model, collection) {
@@ -220,17 +222,16 @@ var AppView = Backbone.View.extend({
 
   paginate : function() {
     var self = this;
-    console.log("paginate")
     _.each(this.collection.paginate(this.currentPage, 2), function(model) {
       if(model.get("valid")) {
-        self.currentPage++;
         var view = new ResultView(model);
-        $("#results").prepend(view.render().el);
+        $("#results").append(view.render().el);
         self.listViews.push(view);
       } else {
         console.log("not valid")
       }
     });
+    this.currentPage++;
   },
 
   initialize: function() {
@@ -243,13 +244,12 @@ var AppView = Backbone.View.extend({
       remove: false,
       success : this.paginate.bind(this)
     });
-    this.paginate();
+
     $(window).scroll(function() {
        if($(window).scrollTop() + $(window).height() >  $(document).height() - 100) {
            self.paginate();
        }
     });
-
   },
 
 

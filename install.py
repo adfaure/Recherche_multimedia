@@ -78,6 +78,7 @@ def main(argv):
     config.set('Scripts', 'sift_kmeans', scripts_dir + '/siftKmeans.py')
     config.set('Scripts', 'mapping_kmeans', scripts_dir + '/generate_mapping.py')
     config.set('Scripts', 'sift_histogram', scripts_dir + '/sift_histograms.py')
+    config.set('Scripts', 'late_fusion', scripts_dir + '/late_fusion.py')
     config.set('Scripts', '1nn', scripts_dir + '/1nn.R')
 
     config.set('Predict', 'best_results_sift', os.path.join(predict_files, 'best_results_sift.txt.sort'))

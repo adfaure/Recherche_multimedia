@@ -23,7 +23,7 @@ $(function(){
       if(!this.get("complete")) {
         return cfg.results_url + this.get("exec_path")  + "/";
       } else {
-        return cfg.results_url + this.get("exec_path")  + "/" + this.get("photo_name") + '.json';
+        return cfg.results_url + this.get("exec_path")  + "/" + this.get("photo_name") + '.sift.json';
       }
     },
 
@@ -325,7 +325,7 @@ var ResultView = Backbone.View.extend({
     var checkCallBack = setInterval(function(intervalModel, clearInt) {
       model.fetch({ fetchType : "files" });
       var completed = _.find(model.get("files"), function(attr) {
-        return attr.name == model.get("photo_name") + ".json";
+        return attr.name == model.get("photo_name") + ".sift.json";
       });
 
       if(completed) {

@@ -38,9 +38,10 @@ def main(argv):
     wvalues = []
     for concept_name in results:
         row = results[concept_name]
-        wvalues.append(int(row['w']))
-        gvalues.append(int(row['g']))
+        #wvalues.append(int(row['w']))
+        #gvalues.append(int(row['g']))
         #print 'concept ' + concept_name + ' g ' + row['g'] + ' w ' + row['w'] + ' ' + row['map']
-        print 'concept ' + concept_name + ' centers ' + row['centers'] + ' g ' + row['g'] + ' w ' + row['w'] + ' ' + row['map']
+        #print 'concept ' + concept_name + ' centers ' + row['centers'] + ' g ' + row['g'] + ' w ' + row['w'] + ' ' + row['map']
+        print 'concept ' + concept_name  + ' siftcoef ' + row['siftco'] + ' color ' + row['colorco'] + ' ' + row['map']
 if __name__ == "__main__":
     main(sys.argv[1:])

@@ -135,6 +135,21 @@ def main(argv):
                 logging.info("map for concept : " + concept_name + " -> " + str(concept_map))
     concepts = set(concepts)
 
+    #Parameters for fusion
+    fusion_model_map = dict()
+    fusion_res_files = config_predict['best_results_fusion']
+    fusion_parameters = open(fusion_res_files, 'r').read().splitlines()
+    for line in fusion_parameters:
+        content = line.split(' ')
+        concept_map = dict()
+        concept_name = content[1]
+        sift_coef = float(content[3])
+        color_coef = float(content[5])
+        concept_map['sift_coef'] = sift_coef
+        concept_map['color_coef'] = color_coef
+        fusion_model_map[concept_name] = concept_map
+
+    # PArameters for color
     color_res_file = config_predict['best_results_color']
     color_input_folder = config_predict['color_folders']
     color_folder_tmpl = Template('g-${g}_w-${w}')
@@ -167,6 +182,13 @@ def main(argv):
                 color_model_folder[concept_name] = color_concept_map
                 logging.info("map for concept : " + concept_name + " -> " + str(concept_map))
 
+
+    jpg_name = image_path
+    if(os.path.splitext(image_path)[1] == '.PNG' or os.path.splitext(image_path)[1] == '.png') :
+        jpg_name = os.path.splitext(image_path)[0] + '.jpg'
+        print "convert"
+        os.system('convert ' + image_path + ' ' + jpg_name );
+
     ####################################################"
     # Color histogrammes
     #####################################################
@@ -174,13 +196,15 @@ def main(argv):
     libc = CDLL('libc.so.6')
     fp = libc.fopen(os.path.join(working_dir, "color_histogram.svm"), "w")
     hist = pointer(HISTROGRAM())
-    path = image_path
+    path = jpg_name
     lib.read_img(hist,  path)
     lib.print_histogram_libsvm(fp, hist, 0)
     lib.free_histogram(hist)
     libc.fflush(fp) # need to fflush otherwise data won't be writed till the prg finished :'(
     libc.close(fp)
 
+    if(os.path.splitext(image_path)[1] == '.PNG' or os.path.splitext(image_path)[1] == '.png') :
+        os.system('rm ' + jpg_name);
 
     ####################################################"
     # Predict Color
@@ -217,8 +241,11 @@ def main(argv):
             exit(1)
 
     collect_dict = dict()
+    fusion_collect_dict = dict()
     for res in res_files:
         cpt_name = os.path.basename(res.split('.')[0])
+        if not cpt_name in fusion_collect_dict:
+            fusion_collect_dict[cpt_name] = 0.0
         if not os.path.exists(res):
             logging.warning("no output res for " + res)
             continue
@@ -229,6 +256,7 @@ def main(argv):
                 res_map = content[1].split(" ")[1]
             else:
                 res_map = content[1].split(" ")[2]
+            fusion_collect_dict[cpt_name] = float(res_map) * float(fusion_model_map[cpt_name]['color_coef']) # calcul of fusion on the thumb
             collect_dict[cpt_name] = {
                 "map" : res_map,
                 "is_concept" : is_concept,
@@ -354,6 +382,7 @@ def main(argv):
                 res_map = content[1].split(" ")[1]
             else:
                 res_map = content[1].split(" ")[2]
+            fusion_collect_dict[cpt_name] += float(res_map) * float(fusion_model_map[cpt_name]['sift_coef']) # calcul of fusion on the thumb
             collect_dict[cpt_name] = {
                 "map" : res_map,
                 "is_concept" : is_concept,
@@ -364,6 +393,19 @@ def main(argv):
     finale_res_path = os.path.join(working_dir, finale_res)
     with open(finale_res_path, "w") as final_res_stream:
         final_res_stream.write(json.dumps(collect_dict))
+
+    fusion_json_dict = dict()
+    for concept in fusion_collect_dict:
+        fusion_json_dict[concept] = dict()
+        fusion_json_dict[concept]['is_concept'] = 1 if fusion_collect_dict[concept] > 0.5 else  -1
+        fusion_json_dict[concept]['concept'] = concept
+        fusion_json_dict[concept]['map'] = fusion_collect_dict[concept]
+
+    finale_res = os.path.basename(image_path) + ".fusion.json"
+    finale_res_path = os.path.join(working_dir, finale_res)
+    with open(finale_res_path, "w") as final_res_stream:
+        final_res_stream.write(json.dumps(fusion_json_dict))
+
 
 
 if __name__ == "__main__":

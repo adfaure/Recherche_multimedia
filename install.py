@@ -83,6 +83,7 @@ def main(argv):
 
     config.set('Predict', 'best_results_sift', os.path.join(predict_files, 'best_results_sift.txt.sort'))
     config.set('Predict', 'best_results_color', os.path.join(predict_files, 'best_results_color.txt.sort'))
+    config.set('Predict', 'best_results_fusion', os.path.join(predict_files, 'best_results_fusion.txt'))
     config.set('Predict', 'centers_folders', os.path.join(predict_files, 'centers'))
     config.set('Predict', 'color_folders', os.path.join(predict_files, 'color'))
     config.set('Predict', 'sift_folders', os.path.join(predict_files, 'sift'))

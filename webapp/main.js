@@ -18,14 +18,9 @@ $(function(){
   });
 
   var Result = Backbone.Model.extend({
-    //
-    // url: function() {
-    //   if(!this.get("complete")) {
-    //     return cfg.results_url + this.get("exec_path")  + "/";
-    //   } else {
-    //     return cfg.results_url + this.get("exec_path")  + "/" + this.get("photo_name") + '.sift.json';
-    //   }
-    // },
+    url: function() {
+        return cfg.results_url + this.get("exec_path")  + "/";
+    },
     parse: function (data, opts) {
       if (opts.fetchType == "files") {
         return {
@@ -120,7 +115,6 @@ $(function(){
           });
         });
 
-        console.log(series)
         series = _.sortBy(series, 'name')
         return {
           chart: {
@@ -242,7 +236,6 @@ $(function(){
     },
 
     initialize: function(data,b,c) {
-      console.log(data,b,c)
       var self = this;
       this.currentPage = 0;
       this.listViews = [];
@@ -348,7 +341,9 @@ $(function(){
       var intervalCount = 0;
       var checkCallBack = setInterval(function(intervalModel, clearInt) {
 
-        model.fetch({ fetchType : "files" });
+        model.fetch({
+          fetchType : "files"
+        });
         var resFiles = _.filter(model.get("files"), function(attr) {
           return attr.name.endsWith(".json");
         });
@@ -357,13 +352,13 @@ $(function(){
             tokenizedFile = file.name.split('.')
             tokenizedFile.pop()
             resName = tokenizedFile.pop()// getting the sift or color extension
+            if(model.get('res') && typeof model.get('res')[resName] !== 'undefined') return;
             model.set('complete', true);
             model.fetch({
               fetchType : "results",
               attrName : resName,
               url : "index_mult/" + model.get("exec_path") + "/" + file.name,
               success : function(model){
-                console.log(model)
                 model.trigger("resUpdated");
               }
             });
@@ -382,8 +377,7 @@ $(function(){
 
     render: function() {
       var template = _.template( $("#results-tmpl").html());
-      selectedOrder = this.$('#order-select').val()
-      console.log('selected : ' + selectedOrder)
+      selectedOrder = this.$('#order-select').val();
       this.$el.html(template({
         model : this.model.toJSON(),
         selected : selectedOrder

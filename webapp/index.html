@@ -140,7 +140,7 @@
           <% if(typeof model.res !== 'undefined')  {%>
           <label class="text-left"> Ordering by :
             <select id="order-select">
-            <%  _.each(model.res, function(elem, key) { console.log(selected, key, elem) %>
+            <%  _.each(model.res, function(elem, key) { %>
               <option value="<%= key %>" <%= (selected != key ? "" : "selected") %> > <%= key %> </option>
             <% }) %>
             </select>

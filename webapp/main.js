@@ -97,7 +97,6 @@ $(function(){
     },
 
     initialize : function(data) {
-      //console.log(data);
       if(!data.exec_path) {
         this.set({
           valid : true,
@@ -161,6 +160,9 @@ $(function(){
       }
     },
 
+    sync : function(method,model,xhr) {
+      Backbone.sync(method,model,xhr)
+    },
 
     defaults: function() {
       return {
@@ -176,7 +178,6 @@ $(function(){
     url: '/index_mult/',
 
     initialize : function(a,b,c) {
-      this.on('add', this.addOne);
       this.urls = [];
     },
 
@@ -185,24 +186,26 @@ $(function(){
     },
 
     paginate : function(page, size) {
-      console.log("ééé")
-
-      return this.models.slice(page * size ,(page * size) + size);
-    },
-
-    addOne : function(model, collection) {
-      var self = this;
-      model.fetch({ fetchType : "raw",
-      success : function(model) {
-        if(!model.get('valid')) {
-          self.remove(model);
-          return;
+      models =  this.models.slice(page * size ,(page * size) + size);
+      _.each(models, function(model) {
+        model.fetch({ fetchType : "raw",
+        success : function(model) {
+          if(!model.get('valid')) {
+            self.remove(model);
+            return;
+          }
+          if(model.get("complete")) {
+            model.fetch({fetchType : "results"});
+          }
         }
-        if(model.get("complete")) {
-          model.fetch({fetchType : "results"});
-        }
-      }
+      });
+
     });
+    return models;
+  },
+
+  addOne : function(model, collection) {
+    var self = this;
 
   }
 });
@@ -220,20 +223,6 @@ var AppView = Backbone.View.extend({
     'click #upload-url-btn ' : 'uploadUrl'
   },
 
-  paginate : function() {
-    var self = this;
-    _.each(this.collection.paginate(this.currentPage, 2), function(model) {
-      if(model.get("valid")) {
-        var view = new ResultView(model);
-        $("#results").append(view.render().el);
-        self.listViews.push(view);
-      } else {
-        console.log("not valid")
-      }
-    });
-    this.currentPage++;
-  },
-
   initialize: function() {
     var self = this;
     this.currentPage = 0;
@@ -246,9 +235,9 @@ var AppView = Backbone.View.extend({
     });
 
     $(window).scroll(function() {
-       if($(window).scrollTop() + $(window).height() >  $(document).height() - 100) {
-           self.paginate();
-       }
+      if($(window).scrollTop() + $(window).height() >  $(document).height() - 10) {
+        self.paginate();
+      }
     });
   },
 
@@ -299,6 +288,22 @@ var AppView = Backbone.View.extend({
       }
     });
   },
+
+  paginate : function() {
+    var self = this;
+    _.each(this.collection.paginate(this.currentPage, 1), function(model) {
+      console.log(model)
+      if(model.get("valid")) {
+        var view = new ResultView(model);
+        $("#results").append(view.render().el);
+        self.listViews.push(view);
+      } else {
+        console.log("not valid")
+      }
+    });
+    this.currentPage++;
+  },
+
 
   render: function() {
   },

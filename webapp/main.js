@@ -18,22 +18,74 @@ $(function(){
   });
 
   var Result = Backbone.Model.extend({
+    //
+    // url: function() {
+    //   if(!this.get("complete")) {
+    //     return cfg.results_url + this.get("exec_path")  + "/";
+    //   } else {
+    //     return cfg.results_url + this.get("exec_path")  + "/" + this.get("photo_name") + '.sift.json';
+    //   }
+    // },
+    parse: function (data, opts) {
+      if (opts.fetchType == "files") {
+        return {
+          "files" : data
+        }
+      } else if (opts.fetchType == "results") {
+        res = {}
+        res[opts.attrName] = data;
+        res.complete = true;
+        return res;
+      } else if (opts.fetchType == "raw") {
 
-    url: function() {
-      if(!this.get("complete")) {
-        return cfg.results_url + this.get("exec_path")  + "/";
+        photo_name = _.find(data, function(elem) {
+          ext = elem.name.split('.').pop();
+          return _.contains(['JPG','jpg','png','PNG'], ext);
+        });
+
+        res_files = _.filter(data, function(elem) {
+          ext = elem.name.split('.').pop();
+          return _.contains(['json'], ext);
+        });
+
+        if(!photo_name) {
+          return  {
+            valid : false
+          }
+        }
+
+        return {
+          valid : true,
+          complete : false,
+          files : data,
+          resFiles : res_files,
+          photo_name : photo_name.name,
+          photo_path : 'index_mult/' + this.get('exec_path') + '/' + photo_name.name
+        }
       } else {
-        return cfg.results_url + this.get("exec_path")  + "/" + this.get("photo_name") + '.sift.json';
+        return data;
       }
     },
 
+    sync : function(method,model,xhr) {
+      Backbone.sync(method,model,xhr)
+    },
+
+    defaults: function() {
+      return {
+        complete : false,
+        error : false,
+        valid : true
+      };
+    },
+
     toHighCharts : function() {
-      if(typeof this.get('res') !== 'undefined') {
+      if(typeof this.get('sift') !== 'undefined') {
 
         XAxis = [];
         values = [];
 
-        sorted = _.chain(_.map(this.get('res'), function(attr, key) {
+        sorted = _.chain(_.map(this.get('sift'), function(attr, key) {
           return {
             value : parseFloat(attr.map),
             name : key
@@ -112,64 +164,6 @@ $(function(){
           valid : true
         });
       }
-    },
-
-    parse: function (data, opts) {
-      if (opts.fetchType == "files") {
-        return {
-          "files" : data
-        }
-      } else if (opts.fetchType == "results") {
-        return {
-          "res" : data,
-          "complete" : true
-        };
-      } else if (opts.fetchType == "raw") {
-
-        photo_name = _.find(data, function(elem) {
-          ext = elem.name.split('.').pop();
-          return _.contains(['JPG','jpg','png','PNG'], ext);
-        });
-
-        res_file = _.find(data, function(elem) {
-          ext = elem.name.split('.').pop();
-          return _.contains(['json'], ext);
-        });
-
-        if(!photo_name) {
-          return  {
-            valid : false
-          }
-        }
-
-        complete = true;
-        if(!res_file) {
-          valid : true,
-          complete = false;
-        }
-
-        return {
-          valid : true,
-          complete : false,
-          files : data,
-          photo_name : photo_name.name,
-          photo_path : 'index_mult/' + this.get('exec_path') + '/' + photo_name.name
-        }
-      } else {
-        return data;
-      }
-    },
-
-    sync : function(method,model,xhr) {
-      Backbone.sync(method,model,xhr)
-    },
-
-    defaults: function() {
-      return {
-        complete : false,
-        error : false,
-        valid : true
-      };
     }
   });
 
@@ -186,210 +180,217 @@ $(function(){
     },
 
     paginate : function(page, size) {
+      var self = this;
       models =  this.models.slice(page * size ,(page * size) + size);
       _.each(models, function(model) {
-        model.fetch({ fetchType : "raw",
-        success : function(model) {
-          if(!model.get('valid')) {
-            self.remove(model);
-            return;
+        model.fetch({
+          fetchType : "raw",
+          url : "index_mult/" + model.get('exec_path'),
+          success : function(model) {
+            if(!model.get('valid')) {
+              self.remove(model);
+              models.remove(model)
+              return;
+            }
           }
-          if(model.get("complete")) {
-            model.fetch({fetchType : "results"});
-          }
+        });
+      });
+      return models;
+    },
+
+    addOne : function(model, collection) {
+      var self = this;
+
+    }
+  });
+
+
+  var AppView = Backbone.View.extend({
+
+    el: $("#evalapp"),
+
+    tagName:  "div",
+
+    events: {
+      'click #upload-file-btn ' : 'uploadFile',
+      'click #upload-url-btn ' : 'uploadUrl'
+    },
+
+    initialize: function(data,b,c) {
+      console.log(data,b,c)
+      var self = this;
+      this.currentPage = 0;
+      this.listViews = [];
+      this.collection = new Results();
+      this.collection.fetch({
+        remove: false,
+        success : this.paginate.bind(this)
+      });
+
+      $(window).scroll(function() {
+        if($(window).scrollTop() + $(window).height() >  $(document).height() - 10) {
+          self.paginate();
         }
       });
-
-    });
-    return models;
-  },
-
-  addOne : function(model, collection) {
-    var self = this;
-
-  }
-});
+    },
 
 
-var AppView = Backbone.View.extend({
-
-  el: $("#evalapp"),
-
-  tagName:  "div",
-
-  events: {
-
-    'click #upload-file-btn ' : 'uploadFile',
-    'click #upload-url-btn ' : 'uploadUrl'
-  },
-
-  initialize: function() {
-    var self = this;
-    this.currentPage = 0;
-    this.listViews = [];
-    this.collection = new Results();
-    this.collection.fetch({
-      data: { page: this.currentPage},
-      remove: false,
-      success : this.paginate.bind(this)
-    });
-
-    $(window).scroll(function() {
-      if($(window).scrollTop() + $(window).height() >  $(document).height() - 10) {
-        self.paginate();
-      }
-    });
-  },
-
-
-  uploadFile : function() {
-    var form_data = new FormData($('#upload-file')[0]);
-    var self = this;
-    $.ajax({
-      type: 'POST',
-      url: cfg.eval_url + '/upload',
-      data: form_data,
-      contentType: false,
-      cache: false,
-      processData: false,
-      async: false,
-      success: function(data) {
-        var view = new ResultView(new Result(data))
-        $("#results").prepend(view.render().el);
-        self.listViews.push(view);
-      },
-      error: function(err) {
-        var view = new AlertView(new Message(err.responseText))
-        $("#alerts").prepend(view.render().el);
-      }
-    });
-  },
-
-  uploadUrl : function() {
-    var cfg = JSON.parse($("#data").html());
-    var url =  $('#input-url').val();
-    var self = this;
-    $.ajax({
-      type: 'POST',
-      url: cfg.eval_url +  '/upload_url',
-      data: JSON.stringify({ url : url }),
-      contentType: false,
-      cache: false,
-      processData: false,
-      async: false,
-      success: function(data) {
-        var view = new ResultView(new Result(data))
-        $("#results").prepend(view.render().el);
-        self.listViews.push(view);
-      },
-      error : function(err) {
-        var view = new AlertView(new Message(err.responseText))
-        $("#alerts").prepend(view.render().el);
-      }
-    });
-  },
-
-  paginate : function() {
-    var self = this;
-    _.each(this.collection.paginate(this.currentPage, 1), function(model) {
-      console.log(model)
-      if(model.get("valid")) {
-        var view = new ResultView(model);
-        $("#results").append(view.render().el);
-        self.listViews.push(view);
-      } else {
-        console.log("not valid")
-      }
-    });
-    this.currentPage++;
-  },
-
-
-  render: function() {
-  },
-});
-
-var App = new AppView;
-
-var ResultView = Backbone.View.extend({
-
-  tagName : "div",
-
-  cfg : JSON.parse($("#data").html()),
-
-  events: {
-  },
-
-  initialize: function(model) {
-    this.model = model;
-    _.bindAll(this, "render");
-    this.model.bind('change:res', this.render);
-    this.model.bind('change:concepts', this.render);
-
-    var intervalCount = 0;
-    var checkCallBack = setInterval(function(intervalModel, clearInt) {
-      model.fetch({ fetchType : "files" });
-      var completed = _.find(model.get("files"), function(attr) {
-        return attr.name == model.get("photo_name") + ".sift.json";
+    uploadFile : function() {
+      var form_data = new FormData($('#upload-file')[0]);
+      var self = this;
+      $.ajax({
+        type: 'POST',
+        url: cfg.eval_url + '/upload',
+        data: form_data,
+        contentType: false,
+        cache: false,
+        processData: false,
+        async: false,
+        success: function(data) {
+          var view = new ResultView(new Result(data))
+          $("#results").prepend(view.render().el);
+          self.listViews.push(view);
+        },
+        error: function(err) {
+          var view = new AlertView(new Message(err.responseText))
+          $("#alerts").prepend(view.render().el);
+        }
       });
+    },
 
-      if(completed) {
-        model.set('complete', true);
-        model.fetch({ fetchType : "results" })
-      }
-
-      if (++intervalCount > 100 | model.get("complete")) {
-        clearInterval(checkCallBack)
-      }
-
-    }, 2000, model);
-  },
-
-  render: function() {
-    var template = _.template( $("#results-tmpl").html());
-    this.$el.html(template(this.model.toJSON()));
-    if(this.model.get('complete')) {
-      var concepts = _.filter(this.model.get('res'), function(elem) {
-        return elem.is_concept === "1";
+    uploadUrl : function() {
+      var cfg = JSON.parse($("#data").html());
+      var url =  $('#input-url').val();
+      var self = this;
+      $.ajax({
+        type: 'POST',
+        url: cfg.eval_url +  '/upload_url',
+        data: JSON.stringify({ url : url }),
+        contentType: false,
+        cache: false,
+        processData: false,
+        async: false,
+        success: function(data) {
+          var view = new ResultView(new Result(data))
+          $("#results").prepend(view.render().el);
+          self.listViews.push(view);
+        },
+        error : function(err) {
+          var view = new AlertView(new Message(err.responseText))
+          $("#alerts").prepend(view.render().el);
+        }
       });
-      this.model.set("concepts", concepts);
-      this.$(".barchart").highcharts(this.model.toHighCharts());
-    }
-    return this;
-  },
-});
+    },
+
+    paginate : function() {
+      var self = this;
+      _.each(this.collection.paginate(this.currentPage, 1), function(model) {
+        if(model.get("valid")) {
+          var view = new ResultView(model);
+          $("#results").append(view.render().el);
+          self.listViews.push(view);
+        } else {
+          console.log("not valid")
+        }
+      });
+      this.currentPage++;
+    },
 
 
-var AlertView = Backbone.View.extend({
+    render: function() {
+    },
+  });
 
-  tagName : "div",
+  var App = new AppView;
 
-  events: {
-  },
+  var ResultView = Backbone.View.extend({
 
-  destroy_view: function() {
+    tagName : "div",
 
-    // COMPLETELY UNBIND THE VIEW
-    this.undelegateEvents();
+    cfg : JSON.parse($("#data").html()),
 
-    this.$el.removeData().unbind();
+    events: {
+    },
 
-    // Remove view from DOM
-    this.remove();
-    Backbone.View.prototype.remove.call(this);
+    initialize: function(model) {
+      this.model = model;
+      _.bindAll(this, "render");
+      this.model.bind('change:sift', this.render);
+      this.model.bind('change:concepts', this.render);
 
-  },
+      var intervalCount = 0;
+      var checkCallBack = setInterval(function(intervalModel, clearInt) {
 
-  initialize: function(model) {
-    this.model = model;
-    setTimeout(this.destroy_view.bind(this), 10000);
-  },
+        model.fetch({ fetchType : "files" });
+        var resFiles = _.filter(model.get("files"), function(attr) {
+          return attr.name.endsWith(".json");
+        });
 
-  render: function() {
-    var template = _.template( $("#alert-tmpl").html());
-    this.$el.html(template(this.model.toJSON()));
-    return this;
-  },
-});
+        _.each(resFiles, function(file) {
+            tokenizedFile = file.name.split('.')
+            tokenizedFile.pop()
+            resName = tokenizedFile.pop()// getting the sift or color extension
+            model.set('complete', true);
+            model.fetch({
+              fetchType : "results",
+              attrName : resName,
+              url : "index_mult/" + model.get("exec_path") + "/" + model.get('resFiles')[0].name,
+              success : function(model){console.log(model)}
+            });
+        });
+
+        if (++intervalCount > 100 | (model.get("sift") && model.get("color"))) {
+          clearInterval(checkCallBack)
+        }
+
+      }, 2000, model);
+    },
+
+    render: function() {
+      var template = _.template( $("#results-tmpl").html());
+      this.$el.html(template(this.model.toJSON()));
+      if(this.model.get('sift')) {
+        var concepts = _.filter(this.model.get('sift'), function(elem) {
+          return elem.is_concept === "1";
+        });
+        this.model.set("concepts", concepts);
+        this.$(".barchart").highcharts(this.model.toHighCharts());
+      }
+      return this;
+    },
+  });
+
+
+  var AlertView = Backbone.View.extend({
+
+    tagName : "div",
+
+    events: {
+    },
+
+    destroy_view: function() {
+
+      // COMPLETELY UNBIND THE VIEW
+      this.undelegateEvents();
+
+      this.$el.removeData().unbind();
+
+      // Remove view from DOM
+      this.remove();
+      Backbone.View.prototype.remove.call(this);
+
+    },
+
+    initialize: function(model) {
+      this.model = model;
+      setTimeout(this.destroy_view.bind(this), 10000);
+    },
+
+    render: function() {
+      var template = _.template( $("#alert-tmpl").html());
+      this.$el.html(template(this.model.toJSON()));
+      return this;
+    },
+  });
 
 });

@@ -210,7 +210,7 @@ $(function(){
       _.each(models, function(model) {
         model.fetch({
           fetchType : "raw",
-          url : "index_mult/" + model.get('exec_path'),
+          url : "index_mult/" + model.get('exec_path') + '/',
           success : function(model) {
             if(!model.get('valid')) {
               self.remove(model);

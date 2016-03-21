@@ -115,28 +115,36 @@
 </script>
 
 <script type="text/template" id="results-tmpl">
-  <div class="callout">
-    <h2><%= photo_name %></h2>
+  <div class="callout resultsView">
+    <h2><%= model.photo_name %></h2>
     <div class="row">
       <div class="large-4 columns">
         <div class="row">
           <div class="large-12 columns">
-          <img class="thumbnail" src="<%= photo_path %>" >
+          <img class="thumbnail" src="<%= model.photo_path %>" >
           </div>
           <div class="large-12 columns">
-            <% if(concepts.length <= 0)  { %>
+            <% if(model.concepts.length <= 0)  { %>
               <div>This photo doesn't match any concepts.</div>
             <% } else { %>
-                <% _.each(concepts, function(elem) {  %>
+                <% _.each(model.concepts, function(elem) {  %>
                 <div class="callout success">
                   concept found : <%= elem.concept %>
                 </div>
                 <%  });  %>
-            <% } %>          </div>
+            <% } %>
+          </div>
         </div>
       </div>
-      <div class="text-center large-8 columns" >
-          <% if(typeof res !== 'undefined')  {  %>
+      <div class="text-center large-8 columns callout chartCall" >
+          <% if(typeof model.res !== 'undefined')  {%>
+          <label class="text-left"> Ordering by :
+            <select id="order-select">
+            <%  _.each(model.res, function(elem, key) { console.log(selected, key, elem) %>
+              <option value="<%= key %>" <%= (selected != key ? "" : "selected") %> > <%= key %> </option>
+            <% }) %>
+            </select>
+          </label>
               <div>
                 <div class="barchart"></div>
               </div>

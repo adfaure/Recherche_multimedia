@@ -121,6 +121,7 @@ $(function(){
         });
 
         console.log(series)
+        series = _.sortBy(series, 'name')
         return {
           chart: {
             type: 'bar',
@@ -334,6 +335,7 @@ $(function(){
     cfg : JSON.parse($("#data").html()),
 
     events: {
+      "change #order-select": "render"
     },
 
     initialize: function(model) {
@@ -380,13 +382,19 @@ $(function(){
 
     render: function() {
       var template = _.template( $("#results-tmpl").html());
-      this.$el.html(template(this.model.toJSON()));
+      selectedOrder = this.$('#order-select').val()
+      console.log('selected : ' + selectedOrder)
+      this.$el.html(template({
+        model : this.model.toJSON(),
+        selected : selectedOrder
+      }));
+
       if(this.model.get("res") && (this.model.get('res')['sift'] || this.model.get('res')['color'])) {
         var concepts = _.filter(this.model.get('res').sift, function(elem) {
           return elem.is_concept === "1";
         });
         this.model.set("concepts", concepts);
-        this.$(".barchart").highcharts(this.model.toHighCharts('sift'));
+        this.$(".barchart").highcharts(this.model.toHighCharts(selectedOrder));
       }
       return this;
     },

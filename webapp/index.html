@@ -118,30 +118,31 @@
   <div class="callout">
     <h2><%= photo_name %></h2>
     <div class="row">
-      <div class="large-6 columns">
-        <img class="thumbnail" src="<%= photo_path %>" >
+      <div class="large-4 columns">
+        <div class="row">
+          <div class="large-12 columns">
+          <img class="thumbnail" src="<%= photo_path %>" >
+          </div>
+          <div class="large-12 columns">
+            <% if(concepts.length <= 0)  { %>
+              <div>This photo doesn't match any concepts.</div>
+            <% } else { %>
+                <% _.each(concepts, function(elem) {  %>
+                <div class="callout success">
+                  concept found : <%= elem.concept %>
+                </div>
+                <%  });  %>
+            <% } %>          </div>
+        </div>
       </div>
-      <div class="text-center large-6 columns" >
-          <% if(typeof sift !== 'undefined' | typeof color !== 'undefined')  {  %>
+      <div class="text-center large-8 columns" >
+          <% if(typeof res !== 'undefined')  {  %>
               <div>
                 <div class="barchart"></div>
               </div>
           <% } else { %>
             <i class="fa fa-5x fa-align-center fa-circle-o-notch fa-spin"></i>
           <% } %>
-      </div>
-    </div>
-    <div class="row">
-      <div class="large-12 columns">
-      <% if(concepts.length <= 0)  { %>
-        <div>This photo doesn't match any concepts.</div>
-      <% } else { %>
-          <% _.each(concepts, function(elem) {  %>
-          <div class="callout success">
-            concept found : <%= elem.concept %>
-          </div>
-          <%  });  %>
-      <% } %>
       </div>
     </div>
   </div>

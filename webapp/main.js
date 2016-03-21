@@ -32,10 +32,11 @@ $(function(){
           "files" : data
         }
       } else if (opts.fetchType == "results") {
-        res = {}
-        res[opts.attrName] = data;
-        res.complete = true;
-        return res;
+        resAttr = this.get('res') || {};
+        resAttr[opts.attrName] = data;
+        return {
+          res : resAttr
+        };
       } else if (opts.fetchType == "raw") {
 
         photo_name = _.find(data, function(elem) {
@@ -79,13 +80,19 @@ $(function(){
       };
     },
 
-    toHighCharts : function() {
-      if(typeof this.get('sift') !== 'undefined') {
+    toHighCharts : function(sortedBy) {
+      if(typeof this.get('res') !== 'undefined') {
+
+        sortBy = sortedBy || "sift";
+        var series = [];
+        if(typeof this.get('res')[sortedBy] === 'undefined') {
+          sortedBy = _.keys(this.get('res'))[0];
+        }
 
         XAxis = [];
         values = [];
 
-        sorted = _.chain(_.map(this.get('sift'), function(attr, key) {
+        sorted = _.chain(_.map(this.get("res")[sortedBy], function(attr, key) {
           return {
             value : parseFloat(attr.map),
             name : key
@@ -95,9 +102,29 @@ $(function(){
           values.unshift(attr.value);
         });
 
+        series.push({
+            name : sortedBy,
+            data : values
+        })
+
+
+        _.each(this.get('res'), function(elem, key) {
+          if(key == sortedBy) return ;
+          serie = [];
+          _.each(XAxis, function(cpt) {
+            serie.push(parseFloat(elem[cpt].map))
+          })
+          series.push({
+            name : key,
+            data : serie
+          });
+        });
+
+        console.log(series)
         return {
           chart: {
-            type: 'bar'
+            type: 'bar',
+            height: 1000,
           },
           title : { text : this.get('photo_name') },
           subtitle :  { text : this.get("hello") },
@@ -131,19 +158,16 @@ $(function(){
             x: -40,
             y: 80,
             floating: true,
-            borderWidth: 1,
+            borderWidth: 3,
+            groupPadding:0.1,
+              pointWidth:20,
             backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
             shadow: true
           },
           credits: {
             enabled: false
           },
-          series : [
-            {
-              name : "map",
-              data : values
-            }
-          ]
+          series : series
         };
       } else return {};
     },
@@ -315,7 +339,8 @@ $(function(){
     initialize: function(model) {
       this.model = model;
       _.bindAll(this, "render");
-      this.model.bind('change:sift', this.render);
+      this.resBinding = [];
+      this.model.on('resUpdated', this.render);
       this.model.bind('change:concepts', this.render);
 
       var intervalCount = 0;
@@ -334,12 +359,19 @@ $(function(){
             model.fetch({
               fetchType : "results",
               attrName : resName,
-              url : "index_mult/" + model.get("exec_path") + "/" + model.get('resFiles')[0].name,
-              success : function(model){console.log(model)}
+              url : "index_mult/" + model.get("exec_path") + "/" + file.name,
+              success : function(model){
+                console.log(model)
+                model.trigger("resUpdated");
+              }
             });
         });
 
-        if (++intervalCount > 100 | (model.get("sift") && model.get("color"))) {
+        if ((model.get("res") && (model.get("res").sift && model.get("res").color))) {
+          clearInterval(checkCallBack)
+        }
+
+        if (++intervalCount > 100) {
           clearInterval(checkCallBack)
         }
 
@@ -349,12 +381,12 @@ $(function(){
     render: function() {
       var template = _.template( $("#results-tmpl").html());
       this.$el.html(template(this.model.toJSON()));
-      if(this.model.get('sift')) {
-        var concepts = _.filter(this.model.get('sift'), function(elem) {
+      if(this.model.get("res") && (this.model.get('res')['sift'] || this.model.get('res')['color'])) {
+        var concepts = _.filter(this.model.get('res').sift, function(elem) {
           return elem.is_concept === "1";
         });
         this.model.set("concepts", concepts);
-        this.$(".barchart").highcharts(this.model.toHighCharts());
+        this.$(".barchart").highcharts(this.model.toHighCharts('sift'));
       }
       return this;
     },

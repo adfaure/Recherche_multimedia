@@ -21,7 +21,7 @@ skip = False
 [${name}_HistogramSiftTrain]
 description = "Genere les histogrammes"
 script = sift_histogram
-input = ${name}/sift_train/mapping
+input = sift_train/mapping${nb_clusters}centers/
 output = ${name}/sift_train/sift_train_histogram.svm
 nb_clusters = ${nb_clusters}
 skip = False
@@ -29,7 +29,7 @@ skip = False
 [${name}_HistogramSiftVal]
 description = "Genere les histogrammes"
 script = sift_histogram
-input = ${name}/sift_val/mapping
+input = sift_val/mapping/mapping${nb_clusters}centers/
 output = ${name}/sift_val/sift_val_histogram.svm
 nb_clusters = ${nb_clusters}
 skip = False

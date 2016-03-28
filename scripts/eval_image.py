@@ -130,7 +130,7 @@ def main(argv):
                 concept_map['sift_centers_file'] = centers_tmpl.substitute(nb_centers=nb_centers)
                 concept_map['sift_model_file'] = os.path.join(folder_path, 'model', concept_name + ".model")
                 if not os.path.exists(os.path.join(folder_path, 'model', concept_name + ".model")):
-                    logging.warning("no model found : " + os.path.exists(os.path.join(folder_path, 'model', concept_name + ".model")))
+                    logging.warning("no model found : " + os.path.join(folder_path, 'model', concept_name + ".model"))
                 model_folders[concept_name] = concept_map
                 logging.info("map for concept : " + concept_name + " -> " + str(concept_map))
     concepts = set(concepts)

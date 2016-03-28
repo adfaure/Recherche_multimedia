@@ -1,0 +1,40 @@
+[${name}_TrainConcept]
+description = "Genere les fichiers de concepts pour l'entrainement."
+script = concept
+concept_file = http://mrim.imag.fr/GINF53C4/PROJET/concepts.txt
+histogram = sift_train/sift_train_histogram${nb_clusters}.svm
+output_dir = ${name}/sift_train/svm/
+url_base = http://mrim.imag.fr/GINF53C4/PROJET/train/ann/
+skip = False
+
+[${name}_SVMTrain]
+description = "Genere les modeles svm."
+script = svm-train
+input_dir = ${name}/sift_train/svm/
+output_dir = ${name}/sift_train/model/
+svm-args = -b 1 -w+1 ${w} -g ${g} -h 0
+nb-threads = 4
+skip = False
+
+[${name}_SVMPredictVal]
+description = "Predict from histogram values [val]."
+script = svm-predict
+input_dir = ${name}/sift_train/model/
+histograms = works/sift_val/sift_val_histogram${nb_clusters}.svm
+output_dir = ${name}/sift_val/out/
+svm-args = -b 1
+
+[${name}_SVMToTrecEval]
+description = "Transform svm prediction for trec_eval."
+script = transform-trec_eval
+input_dir = ${name}/sift_val/out/
+output_dir = ${name}/sift_val/trec_format/
+list_id = http://mrim.imag.fr/GINF53C4/PROJET/val/list.txt
+all = True
+
+[${name}_TrecEval]
+description = "Calculating score with trec_eval."
+script = trec_eval
+input_dir = ${name}/sift_val/trec_format
+output_dir = ${name}/sift_val/trec_eval_results/
+base-url = http://mrim.imag.fr/GINF53C4/PROJET/val/rel/

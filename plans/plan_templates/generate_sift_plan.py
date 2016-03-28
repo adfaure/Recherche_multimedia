@@ -38,19 +38,28 @@ def main(argv):
             sys.exit(1)
     logging.info('output dir is ' + res_folder)
 
-    nb_clusters = ['256', '512']
+    nb_clusters = ['512', '2048', '256']
+    g_values    = [400, 25, 100, 150]
+    w_values    = [100, 20, 5]
 
-    g_values = [25, 50, 100, 150]
-    w_values = [20, 50]
+    all = [
+        [1024, 150, 20],
+        [512, 150, 5],
+        [512, 25, 20],
+        [2048, 150, 20],
+        [512, 400, 20],
+        [512, 150, 100],
+        [256, 100, 20 ],
+        [256, 150, 20]
+    ]
 
     with open(url_list, "r") as outfile:
         template = Template(outfile.read())
         for nb_cluster in nb_clusters:
-            for g in g_values:
-                for w in w_values:
-                    name = 'centers-' + nb_cluster + '_g-' + str(g) + '_w-' + str(w)
+            for vals in all:
+                    name = 'centers-' + str(vals[0]) + '_g-' + str(vals[1]) + '_w-' + str(vals[2])
                     with open(res_folder + "/" + name + ".ini", "w") as plan:
-                        config = template.substitute(g=g, w=w, nb_clusters=nb_cluster, name=name)
+                        config = template.substitute(g=str(vals[1]), w=str(vals[2]), nb_clusters=str(vals[0]), name=name)
                         plan.write(config)
 
 if __name__ == "__main__":

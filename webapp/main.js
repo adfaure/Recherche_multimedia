@@ -74,8 +74,8 @@ $(function(){
         valid : true
       };
     },
-
     toHighCharts : function(sortedBy) {
+
       if(typeof this.get('res') !== 'undefined') {
 
         sortBy = sortedBy || "sift";
@@ -99,7 +99,8 @@ $(function(){
 
         series.push({
             name : sortedBy,
-            data : values
+            data : values,
+            pointWidth: 8
         })
 
 
@@ -108,18 +109,19 @@ $(function(){
           serie = [];
           _.each(XAxis, function(cpt) {
             serie.push(parseFloat(elem[cpt].map))
-          })
+          });
           series.push({
             name : key,
-            data : serie
+            data : serie,
+            pointWidth: 8
           });
         });
 
         series = _.sortBy(series, 'name')
         return {
           chart: {
-            type: 'bar',
-            height: 1000,
+            type: 'column',
+
           },
           title : { text : this.get('photo_name') },
           subtitle :  { text : this.get("hello") },
@@ -153,7 +155,7 @@ $(function(){
             x: -40,
             y: 80,
             floating: true,
-            borderWidth: 3,
+            borderWidth: 1,
             groupPadding:0.1,
               pointWidth:20,
             backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
@@ -328,7 +330,7 @@ $(function(){
     cfg : JSON.parse($("#data").html()),
 
     events: {
-      "change #order-select": "render"
+      "change #order-select": "changeOrder"
     },
 
     initialize: function(model) {
@@ -337,7 +339,7 @@ $(function(){
       this.resBinding = [];
       this.model.on('resUpdated', this.render);
       this.model.bind('change:concepts', this.render);
-
+      this.selectedOrderchanged = false;
       var intervalCount = 0;
       var checkCallBack = setInterval(function(intervalModel, clearInt) {
 
@@ -377,21 +379,36 @@ $(function(){
 
     render: function() {
       var template = _.template( $("#results-tmpl").html());
+
+      if(!this.selectedOrderchanged && this.model.get("res") && (this.model.get('res')['sift'])) {
+        selectedOrder = this.$('#order-select').val("sift"); // init a sift
+      }
+
       selectedOrder = this.$('#order-select').val();
+
       this.$el.html(template({
         model : this.model.toJSON(),
         selected : selectedOrder
       }));
 
       if(this.model.get("res") && (this.model.get('res')['sift'] || this.model.get('res')['color'])) {
+
         var concepts = _.filter(this.model.get('res').sift, function(elem) {
           return elem.is_concept === "1";
         });
+
         this.model.set("concepts", concepts);
         this.$(".barchart").highcharts(this.model.toHighCharts(selectedOrder));
       }
+
       return this;
     },
+
+    changeOrder: function() {
+        this.selectedOrderchanged = true;
+        this.render();
+    }
+
   });
 
 

@@ -1,0 +1,177 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Highcharts Example</title>
+
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+		<style type="text/css">
+${demo.css}
+		</style>
+		<script type="text/javascript">
+$(function () {
+
+    $('#container').highcharts({
+
+        chart: {
+            type: 'heatmap',
+            marginTop: 40,
+            marginBottom: 20,
+            plotBorderWidth: 1
+        },
+
+        title: {
+            text: 'Résulats par categories'
+        },
+
+        xAxis: {
+						categories: ['Color', 'Sift', 'Fusion'],
+        },
+
+        yAxis: {
+						categories: [ "aeroplane",
+													"all",
+													"bicycle",
+													"bird",
+													"boat",
+													"bottle",
+													"bus",
+													"car",
+													"cat",
+													"chair",
+													"cow",
+													"diningtable",
+													"dog",
+													"horse",
+													"motorbike",
+													"person",
+													"pottedplant",
+													"sheep",
+													"sofa",
+													"train",
+													"tvmonitor"],
+            title: null
+        },
+
+        colorAxis: {
+            min: 0,
+            minColor: '#FFFFFF',
+            maxColor: Highcharts.getOptions().colors[0]
+        },
+
+        legend: {
+            align: 'right',
+            layout: 'vertical',
+            margin: 0,
+            verticalAlign: 'top',
+            y: 25,
+            symbolHeight: 280
+        },
+
+        tooltip: {
+            formatter: function () {
+                return '<b>' + this.series.xAxis.categories[this.point.x] + '</b> sold <br><b>' +
+                    this.point.value + '</b> items on <br><b>' + this.series.yAxis.categories[this.point.y] + '</b>';
+            }
+        },
+
+        series: [{
+            name: 'Sales per employee',
+            borderWidth: 1,
+            data: [
+							// color
+						  [0, 0,  35],
+							[0, 1,  15],
+							[0, 2,  08],
+							[0, 3,  19],
+							[0, 4,  25],
+							[0, 6,  18],
+							[0, 5,  09],
+							[0, 7,  23],
+							[0, 8,  18],
+							[0, 9,  18],
+							[0, 10, 09],
+							[0, 11, 14],
+							[0, 12, 17],
+							[0, 13, 08],
+							[0, 14, 11],
+							[0, 15, 53],
+							[0, 16, 10],
+							[0, 17, 14],
+							[0, 18, 08],
+							[0, 19, 13],
+							[0, 20, 11],
+							// sift
+							[1, 0,  68],
+							[1, 1,  34],
+							[1, 2,  38],
+							[1, 3,  29],
+							[1, 4,  32],
+							[1, 5,  13],
+							[1, 6,  58],
+							[1, 7,  38],
+							[1, 8,  44],
+							[1, 9,  36],
+							[1, 10, 16],
+							[1, 11, 22],
+							[1, 12, 34],
+							[1, 13, 30],
+							[1, 14, 29],
+							[1, 15, 65],
+							[1, 16, 14],
+							[1, 17, 34],
+							[1, 18, 18],
+							[1, 19, 50],
+							[1, 20, 37],
+							//fusion
+							[2, 0,  70],
+							[2, 1,  37],
+							[2, 2,  38],
+							[2, 3,  32],
+							[2, 4,  39],
+							[2, 5,  13],
+							[2, 6,  61],
+							[2, 7,  40],
+							[2, 8,  45],
+							[2, 9,  37],
+							[2, 10, 18],
+							[2, 11, 25],
+							[2, 12, 34],
+							[2, 13, 31],
+							[2, 14, 31],
+							[2, 15, 68],
+							[2, 16, 17],
+							[2, 17, 35],
+							[2, 18, 19],
+							[2, 19, 51],
+							[2, 20, 39],
+
+				],
+            dataLabels: {
+                enabled: true,
+                color: '#000000',
+								format : '{point.value}%'
+            }
+        }]
+
+    });
+});
+		</script>
+	</head>
+	<body>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/heatmap.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<!-- <script src="https://raw.githubusercontent.com/highcharts/highcharts/master/js/themes/dark-unica.js"></script> -->
+<!-- <script src="https://raw.githubusercontent.com/highcharts/highcharts/master/js/themes/skies.js"></script> -->
+<!-- <script src="https://raw.githubusercontent.com/highcharts/highcharts/master/js/themes/gray.js"></script> -->
+<!-- <script src="https://raw.githubusercontent.com/highcharts/highcharts/master/js/themes/grid-light.js"></script> -->
+<!-- <script src="https://raw.githubusercontent.com/highcharts/highcharts/master/js/themes/dark-unica.js"></script> -->
+<!-- <script src="https://raw.githubusercontent.com/highcharts/highcharts/master/js/themes/sand-signika.js"></script> -->
+<!-- <script src="https://raw.githubusercontent.com/highcharts/highcharts/master/js/themes/grid.js"></script> -->
+<script src="https://raw.githubusercontent.com/highcharts/highcharts/master/js/themes/grid-light.js"></script>
+
+
+<div id="container" style="height: 400px; min-width: 310px; max-width: 800px; margin: 0 auto"></div>
+	</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Highcharts Example</title>
+
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+		<style type="text/css">
+.highcharts-tooltip h3 {
+    margin: 0.3em 0;
+}
+		</style>
+		<script type="text/javascript">
+$(function () {
+    $('#container').highcharts({
+
+        chart: {
+            type: 'bubble',
+            plotBorderWidth: 1,
+            zoomType: 'xy'
+        },
+
+        legend: {
+            enabled: false
+        },
+
+        title: {
+            text: 'Final results with gamma and weight for color'
+        },
+        xAxis: {
+            gridLineWidth: 1,
+            title: {
+                text: 'svm gamma value'
+            },
+            labels: {
+                format: '{value} G'
+            },
+            plotLines: [{
+                color: 'black',
+                dashStyle: 'dot',
+                width: 2,
+                value: 65,
+                label: {
+                    rotation: 0,
+                    y: 15,
+                    style: {
+                        fontStyle: 'italic'
+                    },
+                    text: 'Safe fat intake 65g/day'
+                },
+                zIndex: 3
+            }]
+        },
+
+        yAxis: {
+            startOnTick: false,
+            endOnTick: false,
+            title: {
+                text: 'W value (weight)'
+            },
+            labels: {
+                format: '{value}'
+            },
+            maxPadding: 0.2,
+            plotLines: [{
+                color: 'black',
+                dashStyle: 'dot',
+                width: 2,
+                value: 50,
+                label: {
+                    align: 'right',
+                    style: {
+                        fontStyle: 'italic'
+                    },
+                    text: 'Safe sugar intake 50g/day',
+                    x: -10
+                },
+                zIndex: 3
+            }]
+        },
+
+        tooltip: {
+            useHTML: true,
+            headerFormat: '<table>',
+            pointFormat: '<tr><th colspan="2"><h3>{point.country}</h3></th></tr>' +
+                '<tr><th>Gamma :</th><td>{point.x}</td></tr>' +
+                '<tr><th>Weight:</th><td>{point.y}</td></tr>' +
+                '<tr><th>Map results:</th><td>{point.z}%</td></tr>',
+            footerFormat: '</table>',
+            followPointer: true
+        },
+
+        plotOptions: {
+            series: {
+                dataLabels: {
+                    enabled: true,
+                    format: '{point.name}'
+                }
+            }
+        },
+
+        series: [{
+            data: [
+							{ x: 1, y: 22, z: 0.1443, name: 'sheep', country: 'sheep' },
+							{ x: 0, y: 10, z: 0.0953, name: 'bottle', country: 'bottle' },
+							{ x: 3, y: 21, z: 0.0877, name: 'horse', country: 'horse' },
+							{ x: 8, y: 23, z: 0.0827, name: 'bicycle', country: 'bicycle' },
+							{ x: 7, y: 13, z: 0.1119, name: 'motorbike', country: 'motorbike' },
+							{ x: 2, y: 24, z: 0.0931, name: 'cow', country: 'cow' },
+							{ x: 2, y: 9, z: 0.1581, name: 'all', country: 'all' },
+							{ x: 9, y: 8, z: 0.2326, name: 'car', country: 'car' },
+							{ x: 0, y: 11, z: 0.1772, name: 'dog', country: 'dog' },
+							{ x: 7, y: 15, z: 0.1868, name: 'bus', country: 'bus' },
+							{ x: 4, y: 10, z: 0.1873, name: 'cat', country: 'cat' },
+							{ x: 9, y: 1, z: 0.5300, name: 'person', country: 'person' },
+							{ x: 4, y: 7, z: 0.1365, name: 'train', country: 'train' },
+							{ x: 1, y: 14, z: 0.2516, name: 'boat', country: 'boat' },
+							{ x: 3, y: 4, z: 0.3527, name: 'aeroplane', country: 'aeroplane' },
+							{ x: 6, y: 12, z: 0.0892, name: 'sofa', country: 'sofa' },
+							{ x: 5, y: 22, z: 0.1064, name: 'pottedplant', country: 'pottedplant' },
+							{ x: 7, y: 15, z: 0.1163, name: 'tvmonitor', country: 'tvmonitor' },
+							{ x: 2, y: 6, z: 0.1832, name: 'chair', country: 'chair' },
+							{ x: 1, y: 10, z: 0.1945, name: 'bird', country: 'bird' },
+							{ x: 1, y: 23, z: 0.1412, name: 'diningtable', country: 'diningtable' }
+            ]
+        }]
+
+    });
+});
+		</script>
+	</head>
+	<body>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/highcharts-more.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://raw.githubusercontent.com/highcharts/highcharts/master/js/themes/grid-light.js"></script>
+
+<div id="container" style="height: 400px; min-width: 310px; max-width: 600px; margin: 0 auto"></div>
+	</body>
+</html>

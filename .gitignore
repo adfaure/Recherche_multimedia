@@ -16,3 +16,4 @@ install.ini
 webapp/venv/
 webapp/node_modules/
 errors.log
+hightChart.awk

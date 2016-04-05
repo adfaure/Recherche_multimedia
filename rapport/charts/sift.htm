@@ -1,0 +1,137 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Highcharts Example</title>
+
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+		<style type="text/css">
+.highcharts-tooltip h3 {
+    margin: 0.3em 0;
+}
+		</style>
+		<script type="text/javascript">
+$(function () {
+    $('#container').highcharts({
+
+        chart: {
+            type: 'bubble',
+            plotBorderWidth: 1,
+            zoomType: 'xy'
+        },
+
+        legend: {
+            enabled: false
+        },
+
+        title: {
+            text: 'Final results with gamma and weight for sift'
+        },
+        xAxis: {
+            gridLineWidth: 1,
+            title: {
+                text: 'svm gamma value'
+            },
+            labels: {
+                format: '{value} G'
+            },
+            plotLines: [{
+                color: 'black',
+                dashStyle: 'dot',
+                width: 2,
+                value: 65,
+                label: {
+                    rotation: 0,
+                    y: 15,
+                    style: {
+                        fontStyle: 'italic'
+                    },
+                },
+                zIndex: 3
+            }]
+        },
+
+        yAxis: {
+            startOnTick: false,
+            endOnTick: false,
+            title: {
+                text: 'W value (weight)'
+            },
+            labels: {
+                format: '{value}'
+            },
+            maxPadding: 0.2,
+            plotLines: [{
+                color: 'black',
+                dashStyle: 'dot',
+                width: 2,
+                value: 50,
+                label: {
+                    align: 'right',
+                    style: {
+                        fontStyle: 'italic'
+                    },
+                    x: -10
+                },
+                zIndex: 3
+            }]
+        },
+
+        tooltip: {
+            useHTML: true,
+            headerFormat: '<table>',
+            pointFormat: '<tr><th colspan="2"><h3>{point.country}</h3></th></tr>' +
+                '<tr><th>Gamma :</th><td>{point.x}</td></tr>' +
+                '<tr><th>Weight:</th><td>{point.y}</td></tr>' +
+                '<tr><th>Map results:</th><td>{point.z}%</td></tr>',
+            footerFormat: '</table>',
+            followPointer: true
+        },
+
+        plotOptions: {
+            series: {
+                dataLabels: {
+                    enabled: true,
+                    format: '{point.name}'
+                }
+            }
+        },
+
+        series: [{
+            data: [
+							{ x: 150, y: 20, z: 0.3482, name: 'sheep', country: 'sheep' },
+							{ x: 25, y: 20, z: 0.1344, name: 'bottle', country: 'bottle' },
+							{ x: 150, y: 5, z: 0.3091, name: 'horse', country: 'horse' },
+							{ x: 150, y: 5, z: 0.3813, name: 'bicycle', country: 'bicycle' },
+							{ x: 400, y: 20, z: 0.2983, name: 'motorbike', country: 'motorbike' },
+							{ x: 150, y: 5, z: 0.1692, name: 'cow', country: 'cow' },
+							{ x: 150, y: 5, z: 0.3465, name: 'all', country: 'all' },
+							{ x: 150, y: 5, z: 0.3818, name: 'car', country: 'car' },
+							{ x: 150, y: 5, z: 0.3438, name: 'dog', country: 'dog' },
+							{ x: 150, y: 20, z: 0.5828, name: 'bus', country: 'bus' },
+							{ x: 150, y: 5, z: 0.4418, name: 'cat', country: 'cat' },
+							{ x: 400, y: 20, z: 0.6571, name: 'person', country: 'person' },
+							{ x: 150, y: 5, z: 0.5052, name: 'train', country: 'train' },
+							{ x: 150, y: 20, z: 0.3273, name: 'boat', country: 'boat' },
+							{ x: 150, y: 20, z: 0.6883, name: 'aeroplane', country: 'aeroplane' },
+							{ x: 150, y: 20, z: 0.1834, name: 'sofa', country: 'sofa' },
+							{ x: 100, y: 20, z: 0.1415, name: 'pottedplant', country: 'pottedplant' },
+							{ x: 150, y: 20, z: 0.3774, name: 'tvmonitor', country: 'tvmonitor' },
+							{ x: 400, y: 20, z: 0.3604, name: 'chair', country: 'chair' },
+							{ x: 150, y: 5, z: 0.2910, name: 'bird', country: 'bird' },
+							{ x: 150, y: 100, z: 0.2252, name: 'diningtable', country: 'diningtable' }
+						]
+        }]
+
+    });
+});
+		</script>
+	</head>
+	<body>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/highcharts-more.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+
+<div id="container" style="height: 400px; min-width: 310px; max-width: 600px; margin: 0 auto"></div>
+	</body>
+</html>
